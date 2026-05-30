@@ -1,18 +1,19 @@
 # create-custom-migrations.ps1
 #
-# Run this script AFTER `prisma migrate dev --name initial_schema` succeeds.
+# Run this script AFTER the initial schema migration has been applied to Supabase
+# via `prisma migrate deploy`.
 #
 # It creates the three custom migration directories with timestamps that are
 # guaranteed to sort after the initial_schema migration, then applies them
-# via `prisma migrate dev`.
+# via `prisma migrate deploy` (Supabase-compatible — no shadow database required).
 #
 # Usage (from project root):
 #   .\scripts\create-custom-migrations.ps1
 #
 # Prerequisites:
-#   - npm run db:migrate --name initial_schema must have completed successfully
+#   - Initial schema migration must have been applied (prisma migrate deploy)
 #   - DATABASE_URL (Supabase transaction pooler) must be set in .env
-#   - DIRECT_URL (Supabase direct connection) must be set in .env
+#   - DIRECT_URL (Supabase session pooler, port 5432) must be set in .env
 #   - prisma/migration-scripts/*.sql files must be present
 
 $ErrorActionPreference = "Stop"
@@ -34,10 +35,10 @@ foreach ($file in $required) {
   }
 }
 
-# Verify at least one migration already exists (initial schema must have run)
+# Verify at least two migrations already exist (001 + initial schema must both be present)
 $existingMigrations = Get-ChildItem -Path $migrationsDir -Directory | Sort-Object Name
-if ($existingMigrations.Count -lt 1) {
-  Write-Error "No migrations found in $migrationsDir. Run 'npm run db:migrate -- --name initial_schema' first."
+if ($existingMigrations.Count -lt 2) {
+  Write-Error "Expected at least 2 migrations (001_enable_extensions + initial_schema) in $migrationsDir. Run 'prisma migrate deploy' first."
   exit 1
 }
 
@@ -73,9 +74,9 @@ Copy-Item (Join-Path $scriptsDir "012_add_db_constraints.sql") (Join-Path $dir01
 Write-Host "Migration files created. Applying now..."
 Write-Host ""
 
-# Apply the three new migrations
+# Apply the three new migrations via deploy (Supabase-compatible — no shadow database)
 Set-Location $projectRoot
-npx prisma migrate dev --skip-seed
+npx prisma migrate deploy
 
 Write-Host ""
 Write-Host "Custom migrations applied successfully."
