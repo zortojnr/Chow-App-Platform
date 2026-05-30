@@ -1,8 +1,8 @@
 # Chow Here — Master Architecture Document
 
 **Status:** AUTHORITATIVE  
-**Version:** 1.0  
-**Last Updated:** 2026-05-27  
+**Version:** 1.1  
+**Last Updated:** 2026-05-30  
 **Governed By:** CTO / Principal Engineer
 
 ---
@@ -93,7 +93,7 @@ The following must never appear in Phase 1 code, schemas, or planning:
 
 ### 3.1 Architectural Approach
 
-Chow Here follows a **feature-based monolith** architecture deployed on Vercel (frontend) and Railway (PostgreSQL). There is no microservice decomposition in Phase 1.
+Chow Here follows a **feature-based monolith** architecture deployed on Vercel (frontend) and Supabase (PostgreSQL). There is no microservice decomposition in Phase 1.
 
 **Decision rationale:** The team size, user scale, and trust requirements of Phase 1 do not justify distributed systems. Operational complexity is a trust risk. A well-structured monolith with clear feature module boundaries is the correct choice.
 
@@ -131,7 +131,7 @@ Chow Here follows a **feature-based monolith** architecture deployed on Vercel (
 └────────────────────────┼─────────────────────────────────────────┘
                          │
               ┌──────────▼──────────┐
-              │  RAILWAY POSTGRES   │
+              │  SUPABASE POSTGRES  │
               │  (Primary Database) │
               └─────────────────────┘
 
@@ -149,7 +149,7 @@ User Request
   → Next.js App Router (server components, layout)
   → Feature Module (business logic)
   → Prisma ORM (database access)
-  → PostgreSQL (Railway)
+  → PostgreSQL (Supabase)
   → Response (typed, validated)
 ```
 
@@ -283,7 +283,7 @@ features/[feature-name]/
 | ORM | Prisma | Type-safe queries; migration management; PostgreSQL-optimized |
 | Database | PostgreSQL | Full-text search; pg_trgm; JSONB; proven reliability |
 | Hosting | Vercel | SSR, edge caching, preview deployments |
-| DB Hosting | Railway | Managed PostgreSQL; simple; sufficient for Phase 1 scale |
+| DB Hosting | Supabase | Managed PostgreSQL; PgBouncer pooling; sufficient for Phase 1 scale |
 | Media | Cloudinary | CDN, transformation, moderation APIs |
 | Email | Resend | Developer-first; React Email templates |
 | Payments | Paystack | Nigerian payment infrastructure (Phase 1 stub only) |
@@ -361,8 +361,9 @@ Never return 200 with an error in the body. Never return 500 for a validation er
 ### 7.1 Required Environment Variables
 
 ```bash
-# Database
-DATABASE_URL=
+# Database — Supabase requires two connection strings
+DATABASE_URL=    # Transaction mode pooler (PgBouncer, port 6543) — runtime queries
+DIRECT_URL=      # Direct connection (port 5432) — migrations only
 
 # Authentication
 NEXTAUTH_SECRET=
@@ -385,9 +386,9 @@ NEXT_PUBLIC_APP_ENV=development|staging|production
 
 | Tier | Purpose | Database |
 |---|---|---|
-| `development` | Local dev | Local PostgreSQL |
-| `staging` | Pre-production review | Railway staging DB |
-| `production` | Live platform | Railway production DB |
+| `development` | Local dev | Local PostgreSQL (Docker or Supabase CLI) |
+| `staging` | Pre-production review | Supabase staging project |
+| `production` | Live platform | Supabase production project |
 
 **Rule:** No production environment variables may ever be committed to source control. No `.env` files are committed. `.env.example` (no values) is the only committed env file.
 
