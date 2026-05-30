@@ -1,0 +1,351 @@
+// Chow Here — Prisma Schema
+// Governed by: database-track.md, data-governance.md
+// Do not add fields or models without a corresponding architecture document update.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER
+  SYSTEM // For system-initiated VerificationEvents only — never assigned to User.role
+}
+
+enum DishCategory {
+  RICE_DISHES
+  SOUPS
+  SWALLOW
+  PROTEIN
+  STREET_FOOD
+  DRINKS
+  SNACKS
+  BREAKFAST
+  DESSERTS
+}
+
+enum VerificationStatus {
+  DRAFT
+  PENDING_REVIEW
+  NEEDS_INFO
+  APPROVED
+  REJECTED
+}
+
+enum PriceRange {
+  BUDGET
+  MID
+  UPSCALE
+}
+
+enum DishAvailabilityStatus {
+  ALWAYS_AVAILABLE
+  SEASONAL
+  WEEKEND_ONLY
+  ON_ORDER
+  UNKNOWN
+}
+
+// ─────────────────────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  role         UserRole  @default(USER)
+  displayName  String?   @db.VarChar(100)
+  avatarUrl    String?
+
+  savedDishes   SavedDish[]
+  searchHistory UserSearchHistory[]
+
+  emailVerified Boolean   @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([deletedAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// DISH TAXONOMY
+// ─────────────────────────────────────────────────────────────
+
+model DishTaxonomy {
+  id            String       @id @default(uuid())
+  canonicalName String       @unique @db.VarChar(150)
+  aliases       String[]
+  category      DishCategory
+  subcategory   String?      @db.VarChar(100)
+  description   String?      @db.VarChar(500)
+  isActive      Boolean      @default(true)
+
+  restaurantDishes RestaurantDish[]
+
+  createdBy String   // Admin user ID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // FTS vector — populated by DB trigger (migration 010)
+  searchVector Unsupported("tsvector")?
+
+  @@index([isActive])
+  @@index([category])
+}
+
+// ─────────────────────────────────────────────────────────────
+// RESTAURANT
+// ─────────────────────────────────────────────────────────────
+
+model Restaurant {
+  id          String  @id @default(uuid())
+  name        String  @db.VarChar(150)
+  slug        String  @unique @db.VarChar(200)
+  description String? @db.VarChar(500)
+
+  // Location
+  // Note: latitude/longitude not in Phase 1. Will be added as nullable migration in Phase 2.
+  address String  @db.VarChar(300)
+  city    String  @db.VarChar(100)
+  state   String  @db.VarChar(100)
+  area    String? @db.VarChar(100)
+
+  // Contact
+  phone   String  @db.VarChar(20)
+  email   String? @db.VarChar(150)
+  website String? @db.VarChar(300)
+
+  // Classification
+  priceRange    PriceRange
+  cuisineTypes  String[]
+
+  // Media
+  thumbnailUrl      String?
+  thumbnailBlurHash String?
+
+  // Verification
+  verificationStatus VerificationStatus @default(DRAFT)
+  confidenceScore    Decimal            @default(0) @db.Decimal(4, 3)
+
+  // Submitter (null if anonymous)
+  submittedBy String?
+
+  // Relations
+  dishes       RestaurantDish[]
+  verification VerificationRecord?
+  photos       RestaurantPhoto[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // FTS vector — populated by DB trigger (migration 010)
+  searchVector Unsupported("tsvector")?
+
+  @@index([verificationStatus])
+  @@index([city])
+  @@index([deletedAt])
+  @@index([confidenceScore])
+}
+
+// ─────────────────────────────────────────────────────────────
+// RESTAURANT DISH
+// ─────────────────────────────────────────────────────────────
+
+model RestaurantDish {
+  id           String @id @default(uuid())
+  restaurantId String
+  dishId       String
+
+  // Restaurant-specific overrides
+  nameAsServed String?  @db.VarChar(150)
+  description  String?  @db.VarChar(300)
+  price        Decimal? @db.Decimal(10, 2)
+
+  availabilityStatus DishAvailabilityStatus @default(UNKNOWN)
+  verifiedAt         DateTime?
+
+  restaurant  Restaurant   @relation(fields: [restaurantId], references: [id])
+  dish        DishTaxonomy @relation(fields: [dishId], references: [id])
+  savedDishes SavedDish[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([restaurantId, dishId]) // A restaurant lists each dish once
+  @@index([restaurantId])
+  @@index([dishId])
+  @@index([availabilityStatus])
+}
+
+// ─────────────────────────────────────────────────────────────
+// RESTAURANT PHOTO
+// ─────────────────────────────────────────────────────────────
+
+model RestaurantPhoto {
+  id           String  @id @default(uuid())
+  restaurantId String
+  url          String  // Cloudinary CDN URL
+  caption      String? @db.VarChar(200)
+  isPrimary    Boolean @default(false)
+  isVerified   Boolean @default(false) // Admin confirmed photo is authentic
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+
+  uploadedBy String?  // User ID or null for admin uploads
+  createdAt  DateTime @default(now())
+
+  @@index([restaurantId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// VERIFICATION RECORD
+// ─────────────────────────────────────────────────────────────
+
+model VerificationRecord {
+  id           String             @id @default(uuid())
+  restaurantId String             @unique
+  currentStatus VerificationStatus
+  confidenceScore Decimal         @db.Decimal(4, 3)
+
+  // Scoring breakdown stored for admin visibility
+  scoreBreakdown Json // { phone: 0.20, photo: 0.15, dishes: 0.15, ... }
+
+  // Submitter contact — separate from feedbackToSubmitter
+  submitterEmail String? @db.VarChar(150) // For sending notifications to submitter
+
+  // Admin notes — NEVER returned in public API responses
+  internalNotes       String? @db.Text // Admin-only internal notes
+  feedbackToSubmitter String? @db.Text // Admin-written text sent to submitter
+
+  assignedTo String? // Admin user ID currently reviewing
+
+  restaurant Restaurant         @relation(fields: [restaurantId], references: [id])
+  events     VerificationEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([currentStatus, createdAt])
+  @@index([assignedTo])
+}
+
+// ─────────────────────────────────────────────────────────────
+// VERIFICATION EVENT (append-only audit log)
+// ─────────────────────────────────────────────────────────────
+
+model VerificationEvent {
+  id                   String  @id @default(uuid())
+  verificationRecordId String
+  restaurantId         String  // Denormalized for direct query
+
+  // Transition details
+  fromStatus VerificationStatus?
+  toStatus   VerificationStatus
+  reason     String?             @db.VarChar(500)
+
+  // Actor
+  actorId   String   // Admin user ID or "SYSTEM"
+  actorRole UserRole
+  ipAddress String   @db.VarChar(50)
+
+  verificationRecord VerificationRecord @relation(fields: [verificationRecordId], references: [id])
+
+  // Immutable — no updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([restaurantId])
+  @@index([verificationRecordId])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// SAVED DISH
+// ─────────────────────────────────────────────────────────────
+
+model SavedDish {
+  id               String  @id @default(uuid())
+  userId           String
+  restaurantDishId String
+  notes            String? @db.VarChar(300)
+
+  user           User           @relation(fields: [userId], references: [id])
+  restaurantDish RestaurantDish @relation(fields: [restaurantDishId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, restaurantDishId]) // One save per dish-restaurant pair per user
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// USER SEARCH HISTORY
+// ─────────────────────────────────────────────────────────────
+
+model UserSearchHistory {
+  id       String  @id @default(uuid())
+  userId   String
+  query    String  @db.VarChar(200)
+  location String? @db.VarChar(100)
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// SEARCH LOG (anonymous)
+// ─────────────────────────────────────────────────────────────
+
+model SearchLog {
+  id          String   @id @default(uuid())
+  query       String   @db.VarChar(200)
+  location    String?  @db.VarChar(100)
+  resultCount Int
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([query])
+}
+
+// ─────────────────────────────────────────────────────────────
+// USED VERIFICATION TOKEN (replay prevention)
+// ─────────────────────────────────────────────────────────────
+
+model UsedVerificationToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique // SHA-256 hash of the used JWT token
+  usedAt    DateTime @default(now())
+
+  @@index([usedAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// RATE LIMIT (PostgreSQL-backed, no Redis required in Phase 1)
+// ─────────────────────────────────────────────────────────────
+
+model RateLimit {
+  id          String   @id @default(uuid())
+  key         String   @unique // e.g. "intake:1.2.3.4", "photo_upload:1.2.3.4"
+  count       Int      @default(1)
+  windowStart DateTime @default(now())
+
+  @@index([windowStart])
+}

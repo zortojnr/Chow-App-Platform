@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Environment files — NEVER commit real values
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# .env.example is the ONLY committed env file (no values, just keys)
+# Do NOT add .env.example to this list
+
+# Prisma — migrations are committed, generated client is not
+prisma/generated/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
