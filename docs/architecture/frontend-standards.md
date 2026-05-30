@@ -1,8 +1,8 @@
 # Chow Here — Frontend Standards
 
 **Status:** AUTHORITATIVE  
-**Version:** 1.0  
-**Last Updated:** 2026-05-27  
+**Version:** 1.1  
+**Last Updated:** 2026-05-30  
 **Parent Document:** master-architecture.md
 
 ---
@@ -331,9 +331,10 @@ theme: {
   extend: {
     colors: {
       brand: {
-        primary: '#...',    // Chow Here primary
-        secondary: '#...',
-        accent: '#...',
+        primary: '#1A5C3A',   // Forest Green
+        accent: '#E07B30',    // Burnt Orange
+        background: '#FAF6EF', // Cream
+        dark: '#0F1F15',      // Deep Dark Green
       },
       verification: {
         verified: '#...',
@@ -342,6 +343,7 @@ theme: {
       }
     },
     fontFamily: {
+      serif: ['Georgia', 'serif'],
       sans: ['Inter', 'sans-serif'],
     }
   }
@@ -488,6 +490,60 @@ Frontend-specific requirements:
 - Every shared UI component in `components/ui/` must have a rendering test
 - Every custom hook must have a unit test using `renderHook` from `@testing-library/react`
 - Critical user flows (search, restaurant intake form submission) must have end-to-end tests
+
+---
+
+---
+
+## 11. BRAND GOVERNANCE
+
+All UI implementation must follow the official Chow Here design system. Visual decisions that conflict with this section are not permitted, regardless of personal preference or convention from other products.
+
+### 11.1 Color Palette
+
+| Role | Name | Hex |
+|---|---|---|
+| Primary | Forest Green | `#1A5C3A` |
+| Accent | Burnt Orange | `#E07B30` |
+| Background | Cream | `#FAF6EF` |
+| Dark | Deep Dark Green | `#0F1F15` |
+
+Use design token names (`brand-primary`, `brand-accent`, `brand-background`, `brand-dark`) in className strings. Never use raw hex codes in components.
+
+### 11.2 Typography
+
+| Role | Typeface |
+|---|---|
+| Headings | Georgia (serif) |
+| Body / UI | Inter (sans-serif) |
+
+Headings use `font-serif`. All other text defaults to `font-sans`. Do not introduce additional typefaces.
+
+### 11.3 Design Principles
+
+These principles govern every visual decision — component choice, layout density, motion, copy tone, and iconography:
+
+- **Warm over sterile** — the platform should feel human, not clinical
+- **Editorial over corporate** — layouts and typography should evoke food media, not SaaS dashboards
+- **Trust over hype** — restraint in animation, color use, and promotional language
+- **Discovery over transaction** — surfaces are designed for browsing, not converting
+- **Food culture over food delivery** — the experience celebrates cuisine, not logistics
+
+### 11.4 What to Avoid
+
+The following patterns are explicitly prohibited:
+
+- Bright startup gradients
+- Neon colors or colors outside the defined palette
+- Excessive drop shadows or layered depth effects
+- Overly modern SaaS aesthetics (glass morphism, aggressive dark mode defaults)
+- Generic food delivery design patterns (e.g., large CTA banners, delivery-time badges, discount ribbons)
+
+### 11.5 Design Intent
+
+> The visual experience should feel like discovering trusted local food, not ordering fast food.
+
+Every screen should pass this test: does it feel like a trusted editorial guide to Nigerian food culture, or does it feel like a delivery app? If the latter, redesign it.
 
 ---
 
