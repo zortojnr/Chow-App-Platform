@@ -13,13 +13,16 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed/seed.ts",
     "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "prisma": {
     "seed": "tsx prisma/seed/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "6.8.2",
+    "jose": "^6.2.3",
     "next": "15.3.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -36,6 +39,7 @@
     "prisma": "6.8.2",
     "tailwindcss": "4.1.6",
     "tsx": "4.19.4",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "vitest": "4.1.7"
   }
 }
