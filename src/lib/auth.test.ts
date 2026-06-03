@@ -347,19 +347,21 @@ describe('authOptions shape', () => {
 // ─────────────────────────────────────────────────────────────
 
 describe('jwt callback', () => {
-  const jwtCallback = authOptions.callbacks?.jwt
+  // The callback types from next-auth are complex union types that include
+  // `undefined`. Using `as any` for invocation avoids fighting the inference
+  // while still testing runtime behaviour correctly.
+  const jwtCb = authOptions.callbacks!.jwt!
 
   it('adds id and role to token on first sign-in', async () => {
-    const user = { id: 'user-id-1', email: 'a@b.com', role: UserRole.ADMIN }
-    const token = {}
-    const result = await jwtCallback!({ token, user } as Parameters<typeof jwtCallback>[0])
+    const user   = { id: 'user-id-1', email: 'a@b.com', role: UserRole.ADMIN }
+    const result = await jwtCb({ token: {}, user } as any)
     expect(result.id).toBe('user-id-1')
     expect(result.role).toBe(UserRole.ADMIN)
   })
 
   it('does not modify token when user is absent (subsequent requests)', async () => {
-    const token = { id: 'existing-id', role: UserRole.SUPER, sub: 'x' }
-    const result = await jwtCallback!({ token } as Parameters<typeof jwtCallback>[0])
+    const token  = { id: 'existing-id', role: UserRole.SUPER, sub: 'x' }
+    const result = await jwtCb({ token } as any)
     expect(result.id).toBe('existing-id')
     expect(result.role).toBe(UserRole.SUPER)
   })
@@ -370,19 +372,19 @@ describe('jwt callback', () => {
 // ─────────────────────────────────────────────────────────────
 
 describe('session callback', () => {
-  const sessionCallback = authOptions.callbacks?.session
+  const sessionCb = authOptions.callbacks!.session!
 
   it('populates session.user.id from token', async () => {
     const token   = { id: 'token-user-id', role: UserRole.ADMIN, sub: 'x' }
     const session = makeSession(UserRole.ADMIN)
-    const result  = await sessionCallback!({ session, token } as Parameters<typeof sessionCallback>[0])
+    const result  = await sessionCb({ session, token } as any) as Session
     expect(result.user.id).toBe('token-user-id')
   })
 
   it('populates session.user.role from token', async () => {
     const token   = { id: 'any-id', role: UserRole.SUPER, sub: 'x' }
     const session = makeSession(UserRole.ADMIN)
-    const result  = await sessionCallback!({ session, token } as Parameters<typeof sessionCallback>[0])
+    const result  = await sessionCb({ session, token } as any) as Session
     expect(result.user.role).toBe(UserRole.SUPER)
   })
 })
