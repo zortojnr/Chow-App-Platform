@@ -39,6 +39,14 @@ export function validationErrorResponse(error: z.ZodError): NextResponse {
   )
 }
 
+export function rateLimitResponse(retryAfterMs: number): NextResponse {
+  const retryAfterSeconds = String(Math.ceil(retryAfterMs / 1000))
+  return NextResponse.json(
+    { success: false, error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many requests' } },
+    { status: 429, headers: { 'Retry-After': retryAfterSeconds } },
+  )
+}
+
 export function serverErrorResponse(error: unknown): NextResponse {
   if (error instanceof AppError) {
     return errorResponse(error.code, error.message, error.statusCode, error.data)
