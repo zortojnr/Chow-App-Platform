@@ -24,9 +24,11 @@
     "@prisma/client": "6.8.2",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.8",
+    "bcryptjs": "^2.4.3",
     "cloudinary": "^2.10.0",
     "jose": "^6.2.3",
     "next": "15.3.2",
+    "next-auth": "^4.24.14",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "resend": "^6.12.4",
@@ -34,6 +36,7 @@
     "zod": "3.24.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "22.15.21",
     "@types/react": "19.1.5",
     "@types/react-dom": "19.1.5",

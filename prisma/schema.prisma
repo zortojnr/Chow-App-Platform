@@ -68,6 +68,7 @@ model User {
   role         UserRole  @default(USER)
   displayName  String?   @db.VarChar(100)
   avatarUrl    String?
+  isActive     Boolean   @default(true)
 
   savedDishes   SavedDish[]
   searchHistory UserSearchHistory[]
@@ -78,6 +79,7 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([isActive])
 }
 
 // ─────────────────────────────────────────────────────────────
