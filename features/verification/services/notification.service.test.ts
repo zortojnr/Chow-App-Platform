@@ -32,7 +32,6 @@ const mockSendEmail = sendEmail as ReturnType<typeof vi.fn>
 const RESTAURANT = 'Mama Titi Kitchen'
 const TO = 'submitter@example.com'
 const SUBMISSION_REF = 'a1b2c3d4'
-const EDIT_LINK = 'https://chowhere.com/edit?sig=abc123'
 const RESPONSE_TOKEN = 'header.payload.signature'
 const FEEDBACK = 'Please provide clearer photos of the menu and restaurant exterior.'
 const APP_URL = 'https://chowhere.com'
@@ -61,7 +60,6 @@ describe('sendIntakeConfirmation', () => {
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     expect(mockSendEmail).toHaveBeenCalledOnce()
   })
@@ -71,7 +69,6 @@ describe('sendIntakeConfirmation', () => {
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     const [to] = mockSendEmail.mock.calls[0]
     expect(to).toBe(TO)
@@ -82,7 +79,6 @@ describe('sendIntakeConfirmation', () => {
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     const [, subject] = mockSendEmail.mock.calls[0]
     expect(subject).toContain(RESTAURANT)
@@ -93,7 +89,6 @@ describe('sendIntakeConfirmation', () => {
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     const [, , html] = mockSendEmail.mock.calls[0]
     expect(html).toContain(RESTAURANT)
@@ -104,21 +99,30 @@ describe('sendIntakeConfirmation', () => {
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     const [, , html] = mockSendEmail.mock.calls[0]
     expect(html).toContain(SUBMISSION_REF)
   })
 
-  it('HTML contains edit link', async () => {
+  it('HTML contains support email address', async () => {
     await NotificationService.sendIntakeConfirmation({
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     const [, , html] = mockSendEmail.mock.calls[0]
-    expect(html).toContain(EDIT_LINK)
+    expect(html).toContain('support@chowhere.com')
+  })
+
+  it('HTML does not contain an edit link', async () => {
+    await NotificationService.sendIntakeConfirmation({
+      to: TO,
+      restaurantName: RESTAURANT,
+      submissionRef: SUBMISSION_REF,
+    })
+    const [, , html] = mockSendEmail.mock.calls[0]
+    expect(html).not.toMatch(/edit.*submission/i)
+    expect(html).not.toMatch(/href.*edit/i)
   })
 
   it('skips silently when to is null', async () => {
@@ -126,7 +130,6 @@ describe('sendIntakeConfirmation', () => {
       to: null,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     expect(mockSendEmail).not.toHaveBeenCalled()
   })
@@ -136,7 +139,6 @@ describe('sendIntakeConfirmation', () => {
       to: '',
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     expect(mockSendEmail).not.toHaveBeenCalled()
   })
@@ -148,7 +150,6 @@ describe('sendIntakeConfirmation', () => {
         to: TO,
         restaurantName: RESTAURANT,
         submissionRef: SUBMISSION_REF,
-        editLink: EDIT_LINK,
       }),
     ).resolves.toBeUndefined()
   })
@@ -417,7 +418,6 @@ describe('return value is always undefined', () => {
       to: TO,
       restaurantName: RESTAURANT,
       submissionRef: SUBMISSION_REF,
-      editLink: EDIT_LINK,
     })
     expect(result).toBeUndefined()
   })

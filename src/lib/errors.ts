@@ -6,6 +6,7 @@ export class AppError extends Error {
     public readonly code: string,
     message: string,
     public readonly statusCode: number = 500,
+    public readonly data?: Record<string, unknown>,
   ) {
     super(message)
     this.name = 'AppError'
@@ -31,8 +32,8 @@ export class ValidationError extends AppError {
 }
 
 export class ConflictError extends AppError {
-  constructor(message: string) {
-    super('CONFLICT', message, 409)
+  constructor(message: string, data?: Record<string, unknown>) {
+    super('CONFLICT', message, 409, data)
   }
 }
 

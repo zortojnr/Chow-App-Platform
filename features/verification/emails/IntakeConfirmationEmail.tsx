@@ -1,9 +1,10 @@
 // Intake Confirmation Email
 //
 // Sent when a restaurant submission is received and queued for review.
-// Contains: restaurant name, truncated submission ID, edit link, expected timeline.
+// Contains: submission reference, review timeline, support contact.
+// No edit links — restaurants transition directly to PENDING_REVIEW at submission.
 //
-// Governed by: track-02-verification-intelligence.md §3.5
+// Governed by: track-02-verification-intelligence.md §3.5, restaurant-intake-track.md §7
 
 import {
   Body,
@@ -12,24 +13,22 @@ import {
   Heading,
   Hr,
   Html,
-  Link,
   Preview,
   Section,
   Text,
 } from '@react-email/components'
 
+export const SUPPORT_EMAIL = 'support@chowhere.com'
+
 export type IntakeConfirmationEmailProps = {
   restaurantName: string
-  /** Short reference shown to the submitter — e.g. first 8 chars of the submission UUID */
+  /** First 8 characters of the submission UUID, uppercased */
   submissionRef: string
-  /** HMAC-signed edit link. Valid for 7 days while submission is in DRAFT. */
-  editLink: string
 }
 
 export function IntakeConfirmationEmail({
   restaurantName,
   submissionRef,
-  editLink,
 }: IntakeConfirmationEmailProps) {
   return (
     <Html lang="en">
@@ -51,16 +50,9 @@ export function IntakeConfirmationEmail({
           </Section>
 
           <Text style={text}>
-            Need to make changes before your submission enters review? You can edit
-            your submission using the link below. This link is valid for{' '}
-            <strong>7 days</strong> and becomes inactive once review begins.
+            If you have questions about your submission, contact us at{' '}
+            <strong>{SUPPORT_EMAIL}</strong>.
           </Text>
-
-          <Section style={buttonSection}>
-            <Link href={editLink} style={button}>
-              Edit submission
-            </Link>
-          </Section>
 
           <Hr style={hr} />
 
@@ -131,21 +123,6 @@ const referenceValue: React.CSSProperties = {
   fontWeight: '700',
   fontFamily: 'monospace',
   margin: 0,
-}
-
-const buttonSection: React.CSSProperties = {
-  margin: '24px 0',
-}
-
-const button: React.CSSProperties = {
-  backgroundColor: '#f97316',
-  borderRadius: '6px',
-  color: '#ffffff',
-  display: 'inline-block',
-  fontSize: '15px',
-  fontWeight: '600',
-  padding: '12px 24px',
-  textDecoration: 'none',
 }
 
 const hr: React.CSSProperties = {

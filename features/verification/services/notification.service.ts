@@ -26,10 +26,8 @@ export type SendIntakeConfirmationParams = {
   /** Recipient email — null/empty → skip silently */
   to: string | null
   restaurantName: string
-  /** First 8 characters of the submission UUID shown as reference */
+  /** First 8 characters of the submission UUID, uppercased */
   submissionRef: string
-  /** HMAC-signed edit link, 7-day TTL. Valid while status is DRAFT. */
-  editLink: string
 }
 
 export type SendNeedsInfoParams = {
@@ -70,7 +68,6 @@ export const NotificationService = {
         IntakeConfirmationEmail({
           restaurantName: params.restaurantName,
           submissionRef: params.submissionRef,
-          editLink: params.editLink,
         }),
       )
       await sendEmail(params.to, `Submission received: ${params.restaurantName}`, html)
