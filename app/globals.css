@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   DESIGN SYSTEM TOKENS
+   Source: chow-here-design-system-v1.md Appendix C
+   ───────────────────────────────────────────────────────────── */
+
+@theme {
+
+  /* ── Amber — Brand Primary ───────────────────────────────── */
+  --color-amber-50:  #FFF8ED;
+  --color-amber-100: #FEEBC5;
+  --color-amber-200: #FDD28A;
+  --color-amber-300: #FBB343;
+  --color-amber-400: #F99A18;
+  --color-amber-500: #D4740A;
+  --color-amber-600: #B05E08;
+  --color-amber-700: #8A4906;
+  --color-amber-800: #6B3905;
+  --color-amber-900: #4F2A04;
+
+  /* ── Forest Green — Trust ────────────────────────────────── */
+  --color-green-50:  #F0F9F3;
+  --color-green-100: #D1EFD9;
+  --color-green-200: #A3DFB3;
+  --color-green-300: #6DC48A;
+  --color-green-400: #41A863;
+  --color-green-500: #1B5E3B;
+  --color-green-600: #164D31;
+  --color-green-700: #113C26;
+  --color-green-800: #0C2C1C;
+  --color-green-900: #071D12;
+
+  /* ── Neutral — Warm Tinted ───────────────────────────────── */
+  /* neutral-0 is a floating surface color, not the page background */
+  --color-neutral-0:   #FFFFFF;
+  --color-neutral-50:  #FAFAF8;
+  --color-neutral-100: #F4F3F0;
+  --color-neutral-200: #E8E6E1;
+  --color-neutral-300: #D2CFC8;
+  --color-neutral-400: #B0ACA3;
+  --color-neutral-500: #888379;
+  --color-neutral-600: #635F57;
+  --color-neutral-700: #47443D;
+  --color-neutral-800: #302D28;
+  --color-neutral-900: #1A1714;
+  --color-neutral-950: #100E0B;
+
+  /* ── Status Colors ───────────────────────────────────────── */
+  --color-status-error:      #C0392B;
+  --color-status-error-bg:   #FDF3F2;
+  --color-status-warning:    #C97B1A;
+  --color-status-warning-bg: #FFFBF0;
+  --color-status-info:       #1A6FA8;
+  --color-status-info-bg:    #F0F6FC;
+
+  /* ── Fonts ───────────────────────────────────────────────── */
+  /* --font-fraunces, --font-plus-jakarta-sans, --font-jetbrains-mono
+     are injected by next/font at the body element.
+     These @theme values reference those variables as fallback chains. */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans:    var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'Courier New', monospace;
+
+  /* ── Type Scale ──────────────────────────────────────────── */
+  /* Overrides Tailwind's default text-* sizes.
+     design-system-v1.md §3.2 — base 16px, major-second ratio for UI */
+  --text-xs:   0.6875rem; /* 11px */
+  --text-sm:   0.75rem;   /* 12px */
+  --text-base: 0.875rem;  /* 14px */
+  --text-md:   1rem;      /* 16px — non-standard, not in Tailwind default */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.75rem;   /* 28px */
+  --text-4xl:  2rem;      /* 32px */
+  --text-5xl:  2.5rem;    /* 40px */
+  --text-6xl:  3rem;      /* 48px */
+  --text-7xl:  3.75rem;   /* 60px */
+  --text-8xl:  5rem;      /* 80px */
+
+  /* ── Border Radius ───────────────────────────────────────── */
+  /* Overrides Tailwind's default rounded-* scale. design-system-v1.md §5 */
+  --radius-none: 0px;
+  --radius-sm:   4px;
+  --radius:      8px;     /* rounded (DEFAULT) */
+  --radius-md:   10px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-3xl:  28px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  /* Warm-tinted umbra: rgba(26,23,20,N). design-system-v1.md §6 */
+  --shadow-xs:    0 1px 2px rgba(26,23,20,0.06);
+  --shadow-sm:    0 1px 3px rgba(26,23,20,0.08), 0 1px 2px rgba(26,23,20,0.04);
+  --shadow:       0 4px 6px rgba(26,23,20,0.07), 0 2px 4px rgba(26,23,20,0.04);
+  --shadow-md:    0 8px 16px rgba(26,23,20,0.08), 0 4px 6px rgba(26,23,20,0.04);
+  --shadow-lg:    0 16px 32px rgba(26,23,20,0.10), 0 6px 12px rgba(26,23,20,0.06);
+  --shadow-xl:    0 24px 48px rgba(26,23,20,0.14), 0 8px 16px rgba(26,23,20,0.06);
+  --shadow-brand: 0 0 0 3px rgba(212,116,10,0.24);  /* amber-500 at 24% */
+  --shadow-trust: 0 0 0 3px rgba(27,94,59,0.20);    /* green-500 at 20% */
+
+  /* ── Animation Durations ─────────────────────────────────── */
+  /* design-system-v1.md §7.2 */
+  --duration-instant:   0ms;
+  --duration-fast:      100ms;
+  --duration-normal:    200ms;
+  --duration-slow:      300ms;
+  --duration-page:      400ms;
+  --duration-elaborate: 500ms;
+
+}
+
+/* ─────────────────────────────────────────────────────────────
+   EASING CURVES
+   design-system-v1.md §7.3 — not Tailwind utilities, used as
+   CSS variables in component transition shorthand properties.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --ease-out:    cubic-bezier(0.0, 0.0, 0.2, 1);   /* Entrances */
+  --ease-in:     cubic-bezier(0.4, 0.0, 1, 1);      /* Exits */
+  --ease-in-out: cubic-bezier(0.4, 0.0, 0.2, 1);    /* State changes */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Badge pop, success tick */
+  --ease-linear: linear;                             /* Progress bars only */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ADMIN DARK MODE TOKEN OVERRIDES
+   design-system-v1.md §18 — applied via data-theme="dark" on
+   <html> by the admin layout. Admin UI only; consumer UI is
+   light-mode-only in Phase 1.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Light-mode admin surface tokens (matches semantic map §2.2) */
+  --admin-bg-page:     #F4F3F0; /* neutral-100 */
+  --admin-bg-surface:  #FFFFFF; /* neutral-0 */
+  --admin-bg-subtle:   #F4F3F0; /* neutral-100 */
+  --admin-bg-muted:    #E8E6E1; /* neutral-200 */
+  --admin-border:      #E8E6E1; /* neutral-200 */
+  --admin-border-strong: #D2CFC8; /* neutral-300 */
+  --admin-text-primary:   #1A1714; /* neutral-900 */
+  --admin-text-secondary: #635F57; /* neutral-600 */
+  --admin-text-tertiary:  #B0ACA3; /* neutral-400 */
+  --admin-sidebar-bg:  #100E0B; /* neutral-950 */
+}
+
+[data-theme="dark"] {
+  --admin-bg-page:     #1A1714;
+  --admin-bg-surface:  #242019;
+  --admin-bg-subtle:   #2C2823;
+  --admin-bg-muted:    #38342E;
+  --admin-border:      #38342E;
+  --admin-border-strong: #4A4640;
+  --admin-text-primary:   #F4F3F0;
+  --admin-text-secondary: #B0ACA3;
+  --admin-text-tertiary:  #635F57;
+  --admin-sidebar-bg:  #0A0907;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BASE LAYER
+   ───────────────────────────────────────────────────────────── */
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base); /* 14px — UI default */
+    line-height: 1.5;
+    color: #1A1714;             /* neutral-900 */
+    background-color: #FAFAF8;  /* neutral-50 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Remove default focus outline — replaced by shadow-brand / shadow-trust
+     focus rings on all interactive elements. Never remove both. */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-brand);
+  }
+
+  /* Reduced motion — design-system-v1.md §7.6 */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SKELETON SHIMMER KEYFRAME
+   design-system-v1.md §16.2
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
