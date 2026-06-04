@@ -58,7 +58,7 @@ import { generateSlug, ensureUniqueSlug } from './slug.service'
 import { checkForDuplicate } from './duplicate-check.service'
 import { NotificationService } from '../../verification/services/notification.service'
 
-const mockDb = db as {
+const mockDb = db as unknown as {
   dishTaxonomy: { findMany: ReturnType<typeof vi.fn> }
   restaurant: { create: ReturnType<typeof vi.fn> }
   restaurantDish: { createMany: ReturnType<typeof vi.fn> }

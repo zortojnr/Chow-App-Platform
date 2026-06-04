@@ -12,6 +12,7 @@ import { type NextRequest } from 'next/server'
 import sharp from 'sharp'
 import { uploadPhoto } from '@/lib/cloudinary'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { extractIp } from '@/lib/ip'
 import {
   successResponse,
   errorResponse,
@@ -26,14 +27,6 @@ const RATE_WINDOW_MS = 24 * 60 * 60 * 1000  // 24 hours
 // Magic bytes — security-standards.md §5.2
 const JPEG_MAGIC = Buffer.from([0xff, 0xd8, 0xff])
 const PNG_MAGIC  = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
-
-function extractIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    request.ip ??
-    '127.0.0.1'
-  )
-}
 
 function detectMimeType(buf: Buffer): 'image/jpeg' | 'image/png' | null {
   if (buf.length >= 3 && buf.subarray(0, 3).equals(JPEG_MAGIC)) return 'image/jpeg'

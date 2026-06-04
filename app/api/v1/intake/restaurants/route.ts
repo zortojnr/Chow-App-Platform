@@ -12,6 +12,7 @@ import { type NextRequest } from 'next/server'
 import { IntakeSubmissionSchema } from 'features/restaurants/schemas/intake.schema'
 import { IntakeService } from 'features/restaurants/services/intake.service'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { extractIp } from '@/lib/ip'
 import {
   successResponse,
   errorResponse,
@@ -23,14 +24,6 @@ import {
 // 3 submissions per IP per hour — restaurant-intake-track.md §8.1
 const RATE_LIMIT = 3
 const RATE_WINDOW_MS = 60 * 60 * 1000
-
-function extractIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    request.ip ??
-    '127.0.0.1'
-  )
-}
 
 export async function POST(request: NextRequest) {
   try {

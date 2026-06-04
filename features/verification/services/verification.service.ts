@@ -11,7 +11,7 @@
 // DB client: dbForVerification only — the `db` export has a write-guard that
 // blocks any external update to verificationStatus.
 
-import { VerificationStatus, UserRole } from '@prisma/client'
+import { VerificationStatus } from '@prisma/client'
 import { dbForVerification } from '@/lib/db'
 import { NotFoundError, ValidationError, GoneError } from '@/lib/errors'
 import { validateTransition } from './state-machine'
@@ -36,7 +36,7 @@ import { NotificationService } from './notification.service'
 export type ApproveParams = {
   restaurantId: string
   actorId:      string
-  actorRole:    UserRole.ADMIN | UserRole.SUPER
+  actorRole:    'ADMIN' | 'SUPER'
   ipAddress:    string
   notes?:       string
 }
@@ -50,7 +50,7 @@ export type ApproveResult = {
 export type RejectParams = {
   restaurantId: string
   actorId:      string
-  actorRole:    UserRole.ADMIN | UserRole.SUPER
+  actorRole:    'ADMIN' | 'SUPER'
   ipAddress:    string
   reason:       string
 }
@@ -58,7 +58,7 @@ export type RejectParams = {
 export type RequestInfoParams = {
   restaurantId:        string
   actorId:             string
-  actorRole:           UserRole.ADMIN | UserRole.SUPER
+  actorRole:           'ADMIN' | 'SUPER'
   ipAddress:           string
   feedbackToSubmitter: string
 }
@@ -72,7 +72,7 @@ export type ProcessSubmitterResponseParams = {
 
 export type AssignAdminParams = {
   restaurantId: string
-  adminId:      string
+  adminId:      string | null  // null removes any existing assignment
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -337,7 +337,7 @@ export const VerificationService = {
     const transition = validateTransition(
       restaurant.verificationStatus,
       VerificationStatus.PENDING_REVIEW,
-      UserRole.SYSTEM,
+      'SYSTEM',
     )
     if (!transition.allowed) throw new ValidationError(transition.reason)
 
@@ -378,7 +378,7 @@ export const VerificationService = {
           fromStatus: restaurant.verificationStatus,
           toStatus:   VerificationStatus.PENDING_REVIEW,
           actorId:    'SYSTEM',
-          actorRole:  UserRole.SYSTEM,
+          actorRole:  'SYSTEM',
           ipAddress,
         },
       }),

@@ -47,7 +47,7 @@ const mockCheckRateLimit = checkRateLimit as ReturnType<typeof vi.fn>
 const mockUploadPhoto = uploadPhoto as ReturnType<typeof vi.fn>
 
 function getSharpInstance() {
-  return (sharp as ReturnType<typeof vi.fn>).mock.results[0]?.value ?? (sharp as ReturnType<typeof vi.fn>)('')
+  return vi.mocked(sharp).mock.results[0]?.value ?? vi.mocked(sharp)('')
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ beforeEach(() => {
   mockUploadPhoto.mockResolvedValue(UPLOAD_RESULT)
 
   // Default sharp chain: toBuffer resolves to a stripped buffer
-  const instance = (sharp as ReturnType<typeof vi.fn>)('')
+  const instance = vi.mocked(sharp)('') as unknown as { toBuffer: ReturnType<typeof vi.fn> }
   if (instance?.toBuffer) {
     instance.toBuffer.mockResolvedValue(Buffer.from('stripped'))
   }
@@ -205,7 +205,7 @@ describe('file validation', () => {
 
   it('returns 400 INVALID_FILE when sharp throws on a corrupt image', async () => {
     // Make sharp's toBuffer reject to simulate a corrupt image
-    const instance = (sharp as ReturnType<typeof vi.fn>)('')
+    const instance = vi.mocked(sharp)('') as unknown as { toBuffer: ReturnType<typeof vi.fn> }
     if (instance?.toBuffer) {
       instance.toBuffer.mockRejectedValueOnce(new Error('Input buffer is not a valid image'))
     }

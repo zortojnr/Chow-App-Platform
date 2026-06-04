@@ -8,8 +8,23 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { AppError } from './errors'
 
+// Pagination metadata shape — master-architecture.md §6.2
+export type PaginationMeta = {
+  total: number
+  page:  number
+  limit: number
+}
+
 export function successResponse<T>(data: T, status = 200): NextResponse {
   return NextResponse.json({ success: true, data }, { status })
+}
+
+export function paginatedSuccessResponse<T>(
+  data: T,
+  meta: PaginationMeta,
+  status = 200,
+): NextResponse {
+  return NextResponse.json({ success: true, data, meta }, { status })
 }
 
 export function errorResponse(

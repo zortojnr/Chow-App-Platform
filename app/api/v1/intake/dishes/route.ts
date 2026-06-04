@@ -12,6 +12,7 @@
 import { type NextRequest } from 'next/server'
 import { db } from '@/lib/db'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { extractIp } from '@/lib/ip'
 import {
   successResponse,
   errorResponse,
@@ -29,14 +30,6 @@ type DishRow = {
   canonicalName: string
   category: string
   aliases: string[]
-}
-
-function extractIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    request.ip ??
-    '127.0.0.1'
-  )
 }
 
 export async function GET(request: NextRequest) {
