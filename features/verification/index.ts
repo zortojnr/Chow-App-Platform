@@ -41,20 +41,26 @@ export type {
 } from './services/verification.service'
 
 // ─────────────────────────────────────────────────────────────
-// INTELLIGENCE SERVICE  (Phase A3)
+// INTELLIGENCE SERVICE
 // ─────────────────────────────────────────────────────────────
-// Uncommented when intelligence.service.ts is built.
-//
-// export { IntelligenceService } from './services/intelligence.service'
-// export type {
-//   VerifyDishParams,
-//   VerifyDishResult,
-//   VerifyPhotoParams,
-//   VerifyPhotoResult,
-//   UpdateIntelligenceParams,
-//   UpdateIntelligenceResult,
-//   OverrideScoreParams,
-// } from './services/intelligence.service'
+// Admin-driven enrichment of dish, photo, and restaurant data.
+// Handles verifyDish, verifyPhoto, updateAvailability, updatePricing,
+// recalculateRestaurantIntelligence, and overrideScore (SUPER only).
+
+export { IntelligenceService } from './services/intelligence.service'
+
+export type {
+  VerifyDishParams,
+  VerifyDishResult,
+  VerifyPhotoParams,
+  VerifyPhotoResult,
+  UpdateAvailabilityParams,
+  UpdatePricingParams,
+  UpdateIntelligenceParams,
+  UpdateIntelligenceResult,
+  UpdateIntelligenceFields,
+  OverrideScoreParams,
+} from './services/intelligence.service'
 
 // ─────────────────────────────────────────────────────────────
 // SCORE BREAKDOWN TYPES
