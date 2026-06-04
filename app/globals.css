@@ -210,3 +210,14 @@
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   QUEUE ROW ENTRANCE — used by Step 17 admin queue table.
+   design-system-v1.md §7.5 — stagger 40ms per row, max 6 items.
+   Duration 200ms ease-out per §7.4.
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
