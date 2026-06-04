@@ -283,15 +283,29 @@ features/admin/components/layout/QueueBadge.tsx     ✅  60s polling, amber pill
 features/admin/components/layout/DarkModeToggle.tsx ✅  §18 dark mode toggle
 ```
 
+### Step 17 — Admin Queue UI (COMPLETE)
+
+```
+app/admin/queue/page.tsx                                     ✅  Server component + Suspense wrapper
+features/admin/components/queue/QueueContent.tsx             ✅  Client — URL filter state, TanStack Query,
+                                                                  skeleton, empty states, error banner,
+                                                                  stagger animation, pagination
+features/admin/components/queue/QueueFilters.tsx             ✅  Status/sort/assignedTo/city filter bar
+features/verification/components/VerificationStatusBadge.tsx ✅  Shared — VerificationStatus → DS §10.4 badge
+app/globals.css (rowFadeIn keyframe)                         ✅  DS §7.5 stagger animation
+```
+
+Design system coverage: §10.3, §10.4, §10.7, §11.1–11.3, §15.2, §16.3, §17.5, §7.4–7.5  
+Accessibility: table role/scope, aria-busy, aria-live, aria-label on all interactive elements  
+Mobile: Restaurant+Status+Score always visible; City at md+; Assigned+Age at lg+
+
 ### What is NOT yet built
 
-- All UI pages (Steps 15–19)
 - `/submit` intake form (Steps 15–16 public UI)
 - `/verify/respond` submitter response page (Step 16)
-- `/admin/queue` verification queue UI (Step 17)
 - `/admin/restaurants/[id]/review` admin review screen (Step 18)
 - `/admin/restaurants/[id]/intelligence` intelligence edit screen (Step 19)
-- Shared feature components: `VerificationStatusBadge`, `ConfidenceScoreWidget`, `DishVerifyCard`, `PhotoVerifyGrid`, `VerificationEventTimeline`, `IntakeFormContainer`, `DishTypeahead`
+- Shared feature components still pending: `ConfidenceScoreWidget`, `DishVerifyCard`, `PhotoVerifyGrid`, `VerificationEventTimeline`, `IntakeFormContainer`, `DishTypeahead`
 
 ---
 
@@ -657,11 +671,11 @@ Feature modules access the database through their own `index.ts` exported types 
 
 ## 16. Current Milestone
 
-**Milestone:** Track 2, Phase B + Middleware Pre-work — Complete  
-**Boundary:** All service-layer and API-layer code for the Restaurant Intake + Verification Workflow + Intelligence Collection systems is built and tested. Next.js admin middleware (Layer 1 security gate) is complete.  
+**Milestone:** Track 2, Step 17 — Admin Queue UI — Complete  
+**Boundary:** All service-layer, API-layer code, Layer A frontend foundation, and admin queue UI are built and tested.  
 **Test evidence:** 835 tests · 32 test files · 0 failures (as of 2026-06-04)
 
-The backend for the entire Track 2 trust pipeline is operational. A submitter can be taken from anonymous intake to verified listing using the API alone. All admin actions (approve, reject, needs-info, assign, intelligence enrichment, score override) are available through authenticated API endpoints.
+The admin verification queue (`/admin/queue`) is fully operational: filter by status/sort/city/assignment, paginated results, live TanStack Query data, loading skeletons, empty states per DS §15.2, and URL-serialized filter state for shareable links.
 
 ---
 
@@ -784,14 +798,12 @@ Phase 1 does not implement navigation. Phase 1 must not make decisions that clos
 
 ## 18. Recommended Next Phase
 
-**Recommended next step:** Step 17 — Admin Queue UI
+**Recommended next step:** Step 18 — Admin Review Screen
 
-**Files to create:**
-- `app/admin/layout.tsx` — admin shell with sidebar
-- `app/admin/queue/page.tsx` — verification queue page
-- All supporting components per Admin UI Architecture Review
+**File to create:**
+- `app/admin/restaurants/[id]/review/page.tsx` — full restaurant detail for admin decision
 
-The Admin UI Architecture Review (2026-06-04) is approved and governs all admin UI implementation decisions. `middleware.ts` is complete. The pre-work gate is cleared — admin UI implementation can begin.
+The review screen is the most data-dense admin page. It displays: restaurant fields, dishes, photos (photo grid), confidence score widget (all 7 signals), verification event timeline, and the three-action decision bar (Approve / Request Info / Reject) per DS §11.4.
 
 **Sequence for Steps 17–19:**
 
