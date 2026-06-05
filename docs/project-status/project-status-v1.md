@@ -306,7 +306,7 @@ Mobile: Restaurant+Status+Score always visible; City at md+; Assigned+Age at lg+
 
 ### Track 3 — Restaurant Listing System (IN PROGRESS)
 
-Steps 1–6 complete. Service law: Schema → Service → API → **UI ✅ (components)** → Pages.
+Steps 1–7 complete. Track 3 is complete.
 
 ```
 app/(public)/layout.tsx                                      ✅  Step 1 — Consumer route group shell
@@ -355,24 +355,43 @@ features/restaurants/components/PhotoLightbox.tsx            ✅  Step 6 — fix
 features/restaurants/components/RestaurantContactSection.tsx ✅  Step 6 — MapPin/Phone/Globe/Mail,
                                                                   Google Maps deep link (§10.3 only ext nav),
                                                                   tel:/mailto: links, skeleton
-features/restaurants/components/index.ts                     ✅  Step 6 — barrel file
+features/restaurants/components/index.ts                     ✅  Step 6+7 — barrel file (RestaurantHero added)
 app/globals.css (scrollbar-none utility)                     ✅  Step 6 dependency — required by
                                                                   PhotoGallery horizontal snap-scroll
+features/restaurants/components/RestaurantHero.tsx           ✅  Step 7 — hero section component
+                                                                  3:2 mobile / 16:9 desktop aspect ratio
+                                                                  gradient overlay, TrustBadge + name overlay
+                                                                  Camera empty state when no photos
+                                                                  fetchPriority=high (LCP), RestaurantHeroSkeleton
+app/(public)/restaurants/[slug]/page.tsx                     ✅  Step 7 — Restaurant Profile Page (SSR)
+                                                                  revalidate: 300 (5-min ISR)
+                                                                  generateMetadata() — title, OG, Twitter, canonical
+                                                                  JSON-LD Restaurant schema (§12.7)
+                                                                  React.cache() deduplication
+                                                                  6 sections: Hero→Identity→Contact→Dishes→Gallery→About
+                                                                  notFound() for non-APPROVED/missing slugs
+app/(public)/restaurants/[slug]/loading.tsx                  ✅  Step 7 — Profile page skeleton
+                                                                  Matches exact section geometry (§13.7)
+app/(public)/restaurants/[slug]/not-found.tsx                ✅  Step 7 — Route-level 404
+                                                                  "Restaurant not found" + back to browse link
+app/(public)/restaurants/page.tsx                            ✅  Step 7 — Browse Index (SSR + ISR)
+                                                                  revalidate: 300
+                                                                  URL-based city filter tabs (no client JS)
+                                                                  2-col mobile / 3-col tablet / 4-col desktop grid
+                                                                  URL-based pagination with prev/next links
+                                                                  Empty state per §13.3
+app/(public)/restaurants/loading.tsx                         ✅  Step 7 — Browse index skeleton (8 card skeletons)
+app/not-found.tsx                                            ✅  Step 7 — Global 404 page (amber CTA)
 ```
 
-Design system coverage (Step 6): §6.2, §7.2, §7.3, §7.6, §8.1–8.6, §10.3, §10.4, §10.6, §10.10, §15.2, §16.2–16.3  
-Accessibility: 44×44px touch targets, role="dialog" aria-modal, aria-live counters, focus management, WCAG AA  
-Motion: all transitions ≤ 300ms, `@media (prefers-reduced-motion)` respected globally
+Design system coverage (Steps 6–7): §6.2, §7.2, §7.3, §7.4, §7.6, §8.1–8.6, §10.1–10.3, §10.4, §10.6, §10.10, §12.6–12.7, §13.2–13.3, §15.2, §16.2–16.3, §17.2–17.9  
+Accessibility: aria-current on filter tabs, aria-label on all sections, aria-live pagination, aria-hidden decorative hero overlay, WCAG AA  
+SEO: unique title/description/canonical per page, JSON-LD Restaurant schema, OpenGraph + Twitter cards  
+Performance: revalidate: 300, React.cache() fetch deduplication, fetchPriority=high on hero LCP image
 
-**Track 3 remaining:**
-
-Step 7: Pages — `/restaurants`, `/restaurants/[slug]`, `not-found.tsx`, `app/not-found.tsx`  
+**Track 3: COMPLETE**
 
 ### What is NOT yet built
-
-- `/restaurants` listing page (Step 7)
-- `/restaurants/[slug]` profile page (Step 7)
-- `not-found.tsx` route-level and `app/not-found.tsx` global (Step 7)
 - `/submit` intake form (Steps 15–16 public UI)
 - `/verify/respond` submitter response page (Step 16)
 - `/admin/restaurants/[id]/review` admin review screen (Step 18)
@@ -384,7 +403,8 @@ Step 7: Pages — `/restaurants`, `/restaurants/[slug]`, `not-found.tsx`, `app/n
 ## 7. Current Test Counts
 
 **Total:** 927 tests · 35 test files · 0 failures  
-**Runner:** Vitest 4.1.7
+**Runner:** Vitest 4.1.7  
+**Note:** Step 7 pages are Server Components with no business logic. They have no dedicated unit tests. TypeScript: 0 errors.
 
 | Test File | Scope |
 |---|---|
