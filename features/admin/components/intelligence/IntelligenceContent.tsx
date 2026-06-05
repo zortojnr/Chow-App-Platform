@@ -1,42 +1,49 @@
-// ReviewContent — main client component for the admin review screen.
-// Fetches GET /api/v1/admin/verification/[restaurantId] and orchestrates all sections.
-// Fires POST /assign on mount (fire-and-forget soft assignment). DS §11.4.
-// DS §11.1–11.3 (admin density), §16 (loading), §15 (empty), §17 (error), §18 (dark mode).
-// Two-column layout at lg+: restaurant details (left) + score + notes (right).
+// IntelligenceContent — main client component for the admin intelligence screen.
+//
+// Fetches GET /api/v1/admin/verification/:restaurantId (same endpoint as review screen).
+// Orchestrates: restaurant fields (editable), dish list, photo grid, score widget, notes.
+//
+// Distinct from ReviewContent: no ActionBar, no EventTimeline, no DuplicateWarningBanner.
+// Track-02 §10.2: "review is a one-time gatekeeping action; intelligence editing is
+// ongoing maintenance."
+//
+// UD-C: accessible for any verification status (C1).
+// DS §11.1–11.3, §16, §15, §17, §18 dark mode.
 
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { ArrowLeft, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
-import { apiGet, apiPost } from '@/lib/api'
+import { apiGet } from '@/lib/api'
 import { VerificationStatusBadge } from 'features/verification/components/VerificationStatusBadge'
-import { ConfidenceScoreWidget, ConfidenceScoreWidgetSkeleton } from 'features/verification/components/ConfidenceScoreWidget'
-import { DishVerifyCard, DishVerifyCardSkeleton } from 'features/verification/components/DishVerifyCard'
-import { PhotoVerifyGrid, PhotoVerifyGridSkeleton } from 'features/verification/components/PhotoVerifyGrid'
-import { VerificationEventTimeline, VerificationEventTimelineSkeleton } from 'features/verification/components/VerificationEventTimeline'
-import { RestaurantDetailPanel } from './RestaurantDetailPanel'
-import { DuplicateWarningBanner } from './DuplicateWarningBanner'
-import { InternalNotesPanel } from './InternalNotesPanel'
-import { ActionBar } from './ActionBar'
-import { OverrideScoreModal } from './modals/OverrideScoreModal'
+import {
+  ConfidenceScoreWidget,
+  ConfidenceScoreWidgetSkeleton,
+} from 'features/verification/components/ConfidenceScoreWidget'
+import {
+  PhotoVerifyGrid,
+  PhotoVerifyGridSkeleton,
+} from 'features/verification/components/PhotoVerifyGrid'
+import { InternalNotesPanel } from 'features/admin/components/review/InternalNotesPanel'
+import { OverrideScoreModal } from 'features/admin/components/review/modals/OverrideScoreModal'
+import { RestaurantIntelligenceForm } from './RestaurantIntelligenceForm'
+import { DishIntelligenceCard, DishIntelligenceCardSkeleton } from './DishIntelligenceCard'
 import { cn } from '@/lib/utils'
-import type { ReviewDetail } from './review.types'
+import type { ReviewDetail } from 'features/admin/components/review/review.types'
 
 // ─── Helpers ──────────────────────────────────────────────────
 
 function formatAge(iso: string): string {
   const ms  = Date.now() - new Date(iso).getTime()
-  const min = Math.floor(ms / 60_000)
-  if (min < 60)  return `${Math.floor(ms / 86_400_000)}d ago`
-  const h = Math.floor(min / 60)
-  if (h < 24)   return `${h}h ago`
+  const h   = Math.floor(ms / 3_600_000)
+  if (h < 1)   return `${Math.floor(ms / 60_000)}m ago`
+  if (h < 24)  return `${h}h ago`
   const d = Math.floor(h / 24)
-  if (d < 30)   return `${d}d ago`
+  if (d < 30)  return `${d}d ago`
   return `${Math.floor(d / 30)}mo ago`
 }
 
@@ -45,11 +52,13 @@ function formatAge(iso: string): string {
 function Section({
   title,
   children,
+  headerRight,
   index = 0,
 }: {
-  title: string
-  children: React.ReactNode
-  index?: number
+  title:        string
+  children:     React.ReactNode
+  headerRight?: React.ReactNode
+  index?:       number
 }) {
   return (
     <section
@@ -62,10 +71,11 @@ function Section({
         animationTimingFunction: 'cubic-bezier(0,0,0.2,1)',
       }}
     >
-      <div className="px-4 py-3 bg-[var(--admin-bg-subtle)] border-b border-[var(--admin-border)]">
+      <div className="px-4 py-3 bg-[var(--admin-bg-subtle)] border-b border-[var(--admin-border)] flex items-center justify-between">
         <h2 className="text-xs font-semibold text-[var(--admin-text-tertiary)] uppercase tracking-wide">
           {title}
         </h2>
+        {headerRight}
       </div>
       <div className="p-4">
         {children}
@@ -76,58 +86,61 @@ function Section({
 
 // ─── Page skeleton ─────────────────────────────────────────────
 
-function ReviewPageSkeleton() {
+function IntelligencePageSkeleton() {
   return (
-    <div className="p-6 space-y-6 pb-24" aria-busy="true">
+    <div className="p-6 space-y-6" aria-busy="true">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-4 w-24 mt-1" />
         <div className="flex-1 space-y-2">
           <Skeleton className="h-7 w-64" />
-          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-4 w-44" />
         </div>
-        <Skeleton className="h-6 w-24 rounded-full" />
+        <div className="flex flex-col items-end gap-1.5" aria-hidden="true">
+          <Skeleton className="h-6 w-28 rounded-full" />
+          <Skeleton className="h-3 w-20" />
+        </div>
       </div>
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
         <div className="space-y-4" aria-hidden="true">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-lg border border-[var(--admin-border)] p-4 space-y-3">
-              <Skeleton className="h-3 w-20" />
-              {Array.from({ length: 3 }).map((_, j) => (
-                <Skeleton key={j} className="h-4" style={{ width: `${60 + j * 15}%` }} />
+          {/* Restaurant fields */}
+          <div className="rounded-lg border border-[var(--admin-border)] overflow-hidden">
+            <div className="px-4 py-3 bg-[var(--admin-bg-subtle)]">
+              <Skeleton className="h-3 w-28" />
+            </div>
+            <div className="px-4 py-2 space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="py-2 border-b border-[var(--admin-border)] last:border-0 space-y-1">
+                  <Skeleton className="h-2.5 w-16" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
               ))}
             </div>
-          ))}
+          </div>
+          {/* Dishes */}
+          <div className="rounded-lg border border-[var(--admin-border)] overflow-hidden">
+            <div className="px-4 py-3 bg-[var(--admin-bg-subtle)]">
+              <Skeleton className="h-3 w-14" />
+            </div>
+            {Array.from({ length: 3 }).map((_, i) => <DishIntelligenceCardSkeleton key={i} />)}
+          </div>
+          {/* Photos */}
+          <div className="rounded-lg border border-[var(--admin-border)] overflow-hidden">
+            <div className="px-4 py-3 bg-[var(--admin-bg-subtle)]">
+              <Skeleton className="h-3 w-14" />
+            </div>
+            <div className="p-4"><PhotoVerifyGridSkeleton /></div>
+          </div>
         </div>
         <div className="space-y-4" aria-hidden="true">
           <ConfidenceScoreWidgetSkeleton />
           <div className="rounded-lg border border-[var(--admin-border)] p-4 space-y-2">
             <Skeleton className="h-3 w-24" />
-            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
         </div>
-      </div>
-
-      {/* Dishes */}
-      <div className="rounded-lg border border-[var(--admin-border)] overflow-hidden" aria-hidden="true">
-        <div className="px-4 py-3 bg-[var(--admin-bg-subtle)]"><Skeleton className="h-3 w-16" /></div>
-        <div>
-          {Array.from({ length: 3 }).map((_, i) => <DishVerifyCardSkeleton key={i} />)}
-        </div>
-      </div>
-
-      {/* Photos */}
-      <div className="rounded-lg border border-[var(--admin-border)] overflow-hidden" aria-hidden="true">
-        <div className="px-4 py-3 bg-[var(--admin-bg-subtle)]"><Skeleton className="h-3 w-16" /></div>
-        <div className="p-4"><PhotoVerifyGridSkeleton /></div>
-      </div>
-
-      {/* Timeline */}
-      <div className="rounded-lg border border-[var(--admin-border)] overflow-hidden" aria-hidden="true">
-        <div className="px-4 py-3 bg-[var(--admin-bg-subtle)]"><Skeleton className="h-3 w-24" /></div>
-        <div className="p-4"><VerificationEventTimelineSkeleton /></div>
       </div>
     </div>
   )
@@ -137,14 +150,12 @@ function ReviewPageSkeleton() {
 
 type Props = { restaurantId: string }
 
-export function ReviewContent({ restaurantId }: Props) {
-  const { data: session } = useSession()
-  const router            = useRouter()
-  const [overrideOpen, setOverrideOpen] = useState(false)
+export function IntelligenceContent({ restaurantId }: Props) {
+  const { data: session }                 = useSession()
+  const [overrideOpen, setOverrideOpen]   = useState(false)
 
-  const queryKey = ['admin', 'review', restaurantId] as const
+  const queryKey = ['admin', 'intelligence', restaurantId] as const
 
-  // Primary data fetch
   const { data, isLoading, isError, error } = useQuery({
     queryKey,
     queryFn:         () => apiGet<ReviewDetail>(`/api/v1/admin/verification/${restaurantId}`),
@@ -153,27 +164,7 @@ export function ReviewContent({ restaurantId }: Props) {
     retry:           1,
   })
 
-  // Fire-and-forget soft assignment on mount
-  const { mutate: assign } = useMutation({
-    mutationFn: () => apiPost(
-      `/api/v1/admin/verification/${restaurantId}/assign`,
-      { adminId: session?.user?.id ?? null },
-    ),
-  })
-
-  useEffect(() => {
-    if (session?.user?.id) {
-      assign()
-    }
-  // Only fire once on mount when session is available
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id])
-
-  // ── Loading ──────────────────────────────────────────────
-
-  if (isLoading) return <ReviewPageSkeleton />
-
-  // ── Error ────────────────────────────────────────────────
+  if (isLoading) return <IntelligencePageSkeleton />
 
   if (isError) {
     return (
@@ -190,7 +181,7 @@ export function ReviewContent({ restaurantId }: Props) {
             aria-hidden="true"
           />
           <div className="text-sm">
-            <span className="font-semibold text-neutral-900">Failed to load review. </span>
+            <span className="font-semibold text-neutral-900">Failed to load intelligence data. </span>
             <span className="text-neutral-600">
               {error instanceof Error ? error.message : 'An unexpected error occurred.'}
             </span>
@@ -202,16 +193,14 @@ export function ReviewContent({ restaurantId }: Props) {
 
   if (!data) return null
 
-  const restaurant    = data
-  const verification  = data.verification
-  const score         = Number(data.confidenceScore)
-  const isSuperAdmin  = session?.user?.role === 'SUPER'
+  const restaurant   = data
+  const verification = data.verification
+  const score        = Number(data.confidenceScore)
+  const isSuperAdmin = session?.user?.role === 'SUPER'
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--admin-bg-page)]">
-
-      {/* Scrollable content area — leave space for sticky action bar */}
-      <div className="flex-1 p-6 space-y-6 pb-28">
+      <div className="flex-1 p-6 space-y-6">
 
         {/* Page header */}
         <div
@@ -224,16 +213,16 @@ export function ReviewContent({ restaurantId }: Props) {
           }}
         >
           <Link
-            href="/admin/queue"
+            href={`/admin/restaurants/${restaurantId}/review`}
             className={cn(
               'inline-flex items-center gap-1.5 mt-1 text-sm text-[var(--admin-text-secondary)]',
               'hover:text-[var(--admin-text-primary)] transition-colors duration-[100ms]',
               'focus-visible:outline-none focus-visible:shadow-brand rounded',
             )}
-            aria-label="Back to verification queue"
+            aria-label={`Back to review screen for ${restaurant.name}`}
           >
             <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
-            Queue
+            Review
           </Link>
 
           <div className="flex-1 min-w-0">
@@ -242,35 +231,17 @@ export function ReviewContent({ restaurantId }: Props) {
             </h1>
             <p className="mt-1 text-sm text-[var(--admin-text-secondary)]">
               {restaurant.city}, {restaurant.state}
-              {' · '}Submitted {formatAge(restaurant.createdAt)}
-              {verification.assignedTo && (
-                <span className="ml-2 text-amber-600">· Assigned</span>
-              )}
+              {' · '}Intelligence · Updated {formatAge(restaurant.createdAt)}
             </p>
           </div>
 
-          <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <VerificationStatusBadge
-              status={verification.currentStatus}
-              dynamic
-            />
-            <Link
-              href={`/admin/restaurants/${restaurantId}/intelligence`}
-              className={cn(
-                'text-xs text-amber-600 hover:text-amber-700',
-                'transition-colors duration-[100ms] ease-out',
-                'focus-visible:outline-none focus-visible:shadow-brand rounded',
-              )}
-            >
-              Edit Intelligence →
-            </Link>
-          </div>
+          <VerificationStatusBadge
+            status={verification.currentStatus}
+            dynamic
+          />
         </div>
 
-        {/* Duplicate warning — conditional */}
-        <DuplicateWarningBanner internalNotes={verification.internalNotes} />
-
-        {/* Two-column upper section */}
+        {/* Two-column section */}
         <div
           className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6"
           style={{
@@ -281,11 +252,34 @@ export function ReviewContent({ restaurantId }: Props) {
             animationTimingFunction: 'cubic-bezier(0,0,0.2,1)',
           }}
         >
-          {/* Left: restaurant details */}
-          <RestaurantDetailPanel restaurant={restaurant} />
+          {/* Left: restaurant details form */}
+          <div
+            style={{
+              animationName:           'rowFadeIn',
+              animationDuration:       '200ms',
+              animationDelay:          '40ms',
+              animationFillMode:       'both',
+              animationTimingFunction: 'cubic-bezier(0,0,0.2,1)',
+            }}
+          >
+            <RestaurantIntelligenceForm
+              restaurant={restaurant}
+              restaurantId={restaurantId}
+              queryKey={[...queryKey]}
+            />
+          </div>
 
-          {/* Right: score widget + internal notes */}
-          <div className="space-y-4">
+          {/* Right: score widget + notes */}
+          <div
+            className="space-y-4"
+            style={{
+              animationName:           'rowFadeIn',
+              animationDuration:       '200ms',
+              animationDelay:          '40ms',
+              animationFillMode:       'both',
+              animationTimingFunction: 'cubic-bezier(0,0,0.2,1)',
+            }}
+          >
             <ConfidenceScoreWidget
               score={score}
               breakdown={verification.scoreBreakdown}
@@ -313,7 +307,7 @@ export function ReviewContent({ restaurantId }: Props) {
             <span className="text-xs text-[var(--admin-text-tertiary)] font-mono">
               {restaurant.dishes.length} linked
               {' · '}
-              {restaurant.dishes.filter(d => d.verifiedAt !== null).length} verified
+              {restaurant.dishes.filter((d) => d.verifiedAt !== null).length} verified
             </span>
           </div>
 
@@ -338,13 +332,13 @@ export function ReviewContent({ restaurantId }: Props) {
               </svg>
               <p className="text-2xl font-semibold text-neutral-800 font-sans">No dishes listed yet</p>
               <p className="text-base text-neutral-600">
-                Dishes will appear here after the submitter adds them.
+                Dishes will appear here after the submitter adds them or an admin links them.
               </p>
             </div>
           ) : (
             <div>
               {restaurant.dishes.map((dish) => (
-                <DishVerifyCard
+                <DishIntelligenceCard
                   key={dish.id}
                   dish={dish}
                   restaurantId={restaurantId}
@@ -364,25 +358,9 @@ export function ReviewContent({ restaurantId }: Props) {
           />
         </Section>
 
-        {/* Verification history */}
-        <Section title="Verification History" index={4}>
-          <VerificationEventTimeline events={verification.events} />
-        </Section>
-
       </div>
 
-      {/* Sticky action bar */}
-      <ActionBar
-        restaurantId={restaurantId}
-        restaurantName={restaurant.name}
-        status={verification.currentStatus}
-        confidenceScore={score}
-        internalNotes={verification.internalNotes}
-        isSuperAdmin={isSuperAdmin}
-        queryKey={[...queryKey]}
-      />
-
-      {/* SUPER-only score override modal — triggered from ConfidenceScoreWidget */}
+      {/* SUPER-only score override modal */}
       {isSuperAdmin && (
         <OverrideScoreModal
           open={overrideOpen}
@@ -392,7 +370,6 @@ export function ReviewContent({ restaurantId }: Props) {
           queryKey={[...queryKey]}
         />
       )}
-
     </div>
   )
 }
