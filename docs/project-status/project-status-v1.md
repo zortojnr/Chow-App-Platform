@@ -1,7 +1,7 @@
 # Chow Here — Project Status v1
 
-**Date:** 2026-06-04  
-**Test count:** 835 tests · 32 test files · 0 failures  
+**Date:** 2026-06-05  
+**Test count:** 927 tests · 35 test files · 0 failures  
 **TypeScript:** 0 errors (clean build)  
 **Purpose:** Authoritative continuation guide for future sessions. Base this document on the actual codebase, not assumptions. If a new session conflicts with anything here, verify against the code before overriding.
 
@@ -254,6 +254,11 @@ app/api/v1/admin/restaurants/[restaurantId]/
   dishes/[dishId]/verify/route.ts     ✅ tested
   photos/[photoId]/verify/route.ts    ✅ tested
   intelligence/route.ts               ✅ tested
+
+app/api/v1/restaurants/
+  route.ts                            ✅ tested  (Step 3 — GET index)
+  [slug]/route.ts                     ✅ tested  (Step 4 — GET profile)
+  [slug]/dishes/route.ts              ✅ tested  (Step 5 — GET dishes)
 ```
 
 ### What is also complete
@@ -299,8 +304,75 @@ Design system coverage: §10.3, §10.4, §10.7, §11.1–11.3, §15.2, §16.3, �
 Accessibility: table role/scope, aria-busy, aria-live, aria-label on all interactive elements  
 Mobile: Restaurant+Status+Score always visible; City at md+; Assigned+Age at lg+
 
+### Track 3 — Restaurant Listing System (IN PROGRESS)
+
+Steps 1–6 complete. Service law: Schema → Service → API → **UI ✅ (components)** → Pages.
+
+```
+app/(public)/layout.tsx                                      ✅  Step 1 — Consumer route group shell
+                                                                  + ConsumerBottomNav (fixed bottom, ≤ lg)
+                                                                  + safe-area-inset-bottom compliance
+src/components/layout/ConsumerBottomNav.tsx                  ✅  Step 1 dependency — client nav bar,
+                                                                  4 items, amber-500 active, usePathname
+features/restaurants/services/restaurant-listing.service.ts  ✅  Step 2 — 3 methods:
+                                                                  getRestaurantProfile(slug)
+                                                                  getRestaurantDishes(restaurantId, params)
+                                                                  getRestaurantIndex(params)
+                                                                  Security: APPROVED-only gate, no raw score,
+                                                                  no admin fields, isVerified photos only
+features/restaurants/schemas/restaurant-index.schema.ts      ✅  Step 3 dependency — Zod query schema
+                                                                  city, priceRange, page, limit
+features/restaurants/schemas/restaurant-dishes.schema.ts     ✅  Step 5 dependency — Zod query schema
+                                                                  category, page, limit
+app/api/v1/restaurants/route.ts                              ✅  Step 3 — GET /api/v1/restaurants
+                                                                  60/IP/min rate limit, no auth
+                                                                  consumer-safe shape, trust-band fields,
+                                                                  thumbnailBlurHash, no raw score
+app/api/v1/restaurants/[slug]/route.ts                       ✅  Step 4 — GET /api/v1/restaurants/[slug]
+                                                                  120/IP/min, consumer-safe profile,
+                                                                  confidenceScoreBand, no admin fields
+app/api/v1/restaurants/[slug]/dishes/route.ts                ✅  Step 5 — GET /api/v1/restaurants/[slug]/dishes
+                                                                  60/IP/min, two-step delegation,
+                                                                  APPROVED gate via profile check
+features/restaurants/components/TrustBadge.tsx               ✅  Step 6 — green-500 bg, neutral-0 text (§6.2)
+                                                                  EXCELLENT/STRONG/VERIFIED bands
+                                                                  showBand prop for profile view
+                                                                  TrustBadgeSkeleton
+features/restaurants/components/RestaurantCard.tsx           ✅  Step 6 — 4:3 photo, Fraunces name,
+                                                                  TrustBadge overlay, shadow-sm→shadow hover,
+                                                                  featured prop (rounded-3xl), skeleton
+features/restaurants/components/DishCard.tsx                 ✅  Step 6 — horizontal layout, confirmed accent,
+                                                                  availability badges, ₦ price format,
+                                                                  ShieldCheck confirmed indicator, skeleton
+features/restaurants/components/PhotoGallery.tsx             ✅  Step 6 — mobile snap-scroll, md 2-col,
+                                                                  lg 3-col, 1:1 aspect-square cells,
+                                                                  N/M count badge (md:hidden),
+                                                                  Camera empty state (§8.4), skeleton
+features/restaurants/components/PhotoLightbox.tsx            ✅  Step 6 — fixed overlay, 300ms fade,
+                                                                  Escape/Arrow keyboard nav, swipe 50px,
+                                                                  body scroll lock, focus management,
+                                                                  role="dialog" aria-modal
+features/restaurants/components/RestaurantContactSection.tsx ✅  Step 6 — MapPin/Phone/Globe/Mail,
+                                                                  Google Maps deep link (§10.3 only ext nav),
+                                                                  tel:/mailto: links, skeleton
+features/restaurants/components/index.ts                     ✅  Step 6 — barrel file
+app/globals.css (scrollbar-none utility)                     ✅  Step 6 dependency — required by
+                                                                  PhotoGallery horizontal snap-scroll
+```
+
+Design system coverage (Step 6): §6.2, §7.2, §7.3, §7.6, §8.1–8.6, §10.3, §10.4, §10.6, §10.10, §15.2, §16.2–16.3  
+Accessibility: 44×44px touch targets, role="dialog" aria-modal, aria-live counters, focus management, WCAG AA  
+Motion: all transitions ≤ 300ms, `@media (prefers-reduced-motion)` respected globally
+
+**Track 3 remaining:**
+
+Step 7: Pages — `/restaurants`, `/restaurants/[slug]`, `not-found.tsx`, `app/not-found.tsx`  
+
 ### What is NOT yet built
 
+- `/restaurants` listing page (Step 7)
+- `/restaurants/[slug]` profile page (Step 7)
+- `not-found.tsx` route-level and `app/not-found.tsx` global (Step 7)
 - `/submit` intake form (Steps 15–16 public UI)
 - `/verify/respond` submitter response page (Step 16)
 - `/admin/restaurants/[id]/review` admin review screen (Step 18)
@@ -311,7 +383,7 @@ Mobile: Restaurant+Status+Score always visible; City at md+; Assigned+Age at lg+
 
 ## 7. Current Test Counts
 
-**Total:** 755 tests · 30 test files · 0 failures  
+**Total:** 927 tests · 35 test files · 0 failures  
 **Runner:** Vitest 4.1.7
 
 | Test File | Scope |
@@ -346,6 +418,9 @@ Mobile: Restaurant+Status+Score always visible; City at md+; Assigned+Age at lg+
 | `app/api/v1/admin/restaurants/[restaurantId]/dishes/[dishId]/verify/route.test.ts` | Dish verify API |
 | `app/api/v1/admin/restaurants/[restaurantId]/photos/[photoId]/verify/route.test.ts` | Photo verify API |
 | `app/api/v1/admin/restaurants/[restaurantId]/intelligence/route.test.ts` | Restaurant intelligence API |
+| `app/api/v1/restaurants/route.test.ts` | Public restaurant index API |
+| `app/api/v1/restaurants/[slug]/route.test.ts` | Public restaurant profile API |
+| `app/api/v1/restaurants/[slug]/dishes/route.test.ts` | Public restaurant dishes API |
 
 ---
 
@@ -388,6 +463,14 @@ Steps 15-19 UI layer                        ← depends on all of the above
 
 All routes are under `/api/v1/`. All responses use the standard envelope:  
 `{ success: true, data: {...} }` or `{ success: false, error: { code, message, fields? } }`.
+
+### Public Listing API (Track 3)
+
+| Method | Route | Auth | Rate Limit | Status |
+|---|---|---|---|---|
+| GET | `/api/v1/restaurants` | None | 60/IP/min | ✅ Step 3 complete |
+| GET | `/api/v1/restaurants/[slug]` | None | 120/IP/min | ✅ Step 4 complete |
+| GET | `/api/v1/restaurants/[slug]/dishes` | None | 60/IP/min | ✅ Step 5 complete |
 
 ### Public Intake API
 
@@ -671,9 +754,9 @@ Feature modules access the database through their own `index.ts` exported types 
 
 ## 16. Current Milestone
 
-**Milestone:** Track 2, Step 17 — Admin Queue UI — Complete  
-**Boundary:** All service-layer, API-layer code, Layer A frontend foundation, and admin queue UI are built and tested.  
-**Test evidence:** 835 tests · 32 test files · 0 failures (as of 2026-06-04)
+**Milestone:** Track 3, Step 6 — Consumer UI Components — Complete  
+**Boundary:** All three public listing API routes built and tested. All 6 consumer UI components implemented (TrustBadge, RestaurantCard, DishCard, PhotoGallery, PhotoLightbox, RestaurantContactSection). Next: Step 7 — consumer pages.  
+**Test evidence:** 927 tests · 35 test files · 0 failures (as of 2026-06-05)
 
 The admin verification queue (`/admin/queue`) is fully operational: filter by status/sort/city/assignment, paginated results, live TanStack Query data, loading skeletons, empty states per DS §15.2, and URL-serialized filter state for shareable links.
 
