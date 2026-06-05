@@ -75,6 +75,13 @@ export type AssignAdminParams = {
   adminId:      string | null  // null removes any existing assignment
 }
 
+export type ReopenParams = {
+  restaurantId: string
+  actorId:      string
+  actorRole:    'ADMIN' | 'SUPER'
+  ipAddress:    string
+}
+
 // ─────────────────────────────────────────────────────────────
 // INTERNAL HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -386,6 +393,55 @@ export const VerificationService = {
         data: { tokenHash: hashToken(token) },
       }),
       ...photoCreateOps,
+    ])
+  },
+
+  // ── reopen ───────────────────────────────────────────────
+  // REJECTED → PENDING_REVIEW. Restores the submission to the review queue.
+  // Score is recalculated without S4 (PENDING_REVIEW does not include admin-approved signal).
+  // No submitter notification — this is an internal admin action.
+
+  async reopen(params: ReopenParams): Promise<void> {
+    const { restaurantId, actorId, actorRole, ipAddress } = params
+
+    const restaurant = await fetchForTransition(restaurantId)
+    if (!restaurant?.verification) throw new NotFoundError('Restaurant')
+
+    const transition = validateTransition(
+      restaurant.verificationStatus,
+      VerificationStatus.PENDING_REVIEW,
+      actorRole,
+    )
+    if (!transition.allowed) throw new ValidationError(transition.reason)
+
+    const scoreInput = buildScoreInput(restaurant, VerificationStatus.PENDING_REVIEW)
+    const { score, breakdown } = calculateScore(scoreInput, 'STATUS_TRANSITION')
+
+    await dbForVerification.$transaction([
+      dbForVerification.restaurant.update({
+        where: { id: restaurantId },
+        data:  { verificationStatus: VerificationStatus.PENDING_REVIEW, confidenceScore: score },
+      }),
+      dbForVerification.verificationRecord.update({
+        where: { restaurantId },
+        data:  {
+          currentStatus:   VerificationStatus.PENDING_REVIEW,
+          confidenceScore: score,
+          scoreBreakdown:  breakdown as object,
+          assignedTo:      null,
+        },
+      }),
+      dbForVerification.verificationEvent.create({
+        data: {
+          verificationRecordId: restaurant.verification.id,
+          restaurantId,
+          fromStatus: restaurant.verificationStatus,
+          toStatus:   VerificationStatus.PENDING_REVIEW,
+          actorId,
+          actorRole,
+          ipAddress,
+        },
+      }),
     ])
   },
 
