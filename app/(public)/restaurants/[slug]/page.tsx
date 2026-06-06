@@ -5,12 +5,17 @@
 // and the page render within the same request.
 //
 // Sections in order (§13.2):
-//   1. Hero         — full-width photo + gradient overlay + name/badge
+//   1. Hero         — mobile: full-width above content; lg+: left sidebar column
 //   2. Identity     — <h1>, TrustBadge showBand, cuisine tags, price range
-//   3. Contact      — RestaurantContactSection (location + phone + website + email)
+//   3. Location     — RestaurantContactSection show="location" (MapPin + area/address/city)
 //   4. Dishes       — "What they serve" chip scroll + DishCard grid
-//   5. Gallery      — PhotoGallery (mobile snap-scroll, md/lg grid)
-//   6. About        — conditional: omitted if null or < 10 chars (§16.5)
+//   5. Contact      — RestaurantContactSection show="contact" (phone + website + email)
+//   6. Gallery      — PhotoGallery; primary photo excluded (§8.2 — hero only)
+//   7. About        — conditional: omitted if null or < 10 chars (§16.5)
+//
+// Layout (§17.2):
+//   < lg  — stacked single-column; hero full viewport width above content
+//   lg+   — two-column sidebar: hero (photo+name) left, all detail sections right
 //
 // SEO: generateMetadata() + JSON-LD Restaurant schema (§12.7)
 // 404: notFound() for non-APPROVED or missing slugs (§5.1)
@@ -118,6 +123,19 @@ export default async function RestaurantProfilePage({ params }: Props) {
     ...(restaurant.photos[0] ? { image: restaurant.photos[0].url } : {}),
   }
 
+  // §8.2: primary photo is hero-only; gallery receives non-primary verified photos
+  const galleryPhotos = restaurant.photos.filter((p) => !p.isPrimary)
+
+  const contactProps = {
+    phone:   restaurant.phone,
+    address: restaurant.address,
+    area:    restaurant.area,
+    city:    restaurant.city,
+    state:   restaurant.state,
+    website: restaurant.website,
+    email:   restaurant.email,
+  }
+
   return (
     <>
       <script
@@ -127,115 +145,134 @@ export default async function RestaurantProfilePage({ params }: Props) {
 
       <article>
 
-        {/* ── 1. Hero ───────────────────────────────────────── */}
-        <RestaurantHero
-          photos={restaurant.photos}
-          name={restaurant.name}
-          confidenceScoreBand={restaurant.confidenceScoreBand}
-        />
-
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-10">
-
-          {/* ── 2. Identity ───────────────────────────────── */}
-          <section aria-label="Restaurant identity">
-            {/* Semantic h1 — hero overlay is decorative (aria-hidden) §13.2 */}
-            <h1 className="font-display font-bold text-neutral-900 leading-tight mb-3 text-2xl md:text-3xl lg:text-4xl">
-              {restaurant.name}
-            </h1>
-
-            <TrustBadge
-              scoreBand={restaurant.confidenceScoreBand}
-              showBand
-              className="mb-4"
-            />
-
-            <div className="flex flex-wrap items-center gap-2">
-              {restaurant.cuisineTypes.map((cuisine) => (
-                <Badge key={cuisine} variant="category">{cuisine}</Badge>
-              ))}
-              <Badge
-                variant={PRICE_VARIANT[restaurant.priceRange]}
-                aria-label={`Price range: ${restaurant.priceRange.toLowerCase()}`}
-              >
-                {PRICE_DISPLAY[restaurant.priceRange]}
-              </Badge>
-            </div>
-          </section>
-
-          {/* ── 3. Location + Contact ────────────────────── */}
-          <RestaurantContactSection
-            phone={restaurant.phone}
-            address={restaurant.address}
-            area={restaurant.area}
-            city={restaurant.city}
-            state={restaurant.state}
-            website={restaurant.website}
-            email={restaurant.email}
+        {/* ── Mobile hero — full viewport width, hidden at lg+ ── */}
+        <div className="lg:hidden">
+          <RestaurantHero
+            photos={restaurant.photos}
+            name={restaurant.name}
+            confidenceScoreBand={restaurant.confidenceScoreBand}
           />
+        </div>
 
-          {/* ── 4. Dishes ─────────────────────────────────── */}
-          <section aria-label="What they serve">
-            <h2 className="font-display text-2xl font-semibold text-neutral-800 mb-5">
-              What they serve
-            </h2>
+        {/* ── Content area ──────────────────────────────────── */}
+        {/*
+          §17.2 sidebar layout:
+          < lg  — single column, detail sections stacked below mobile hero
+          lg+   — two-column grid: hero (photo+name) left · details right
+        */}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          <div className="lg:grid lg:grid-cols-[2fr_3fr] lg:gap-10 lg:items-start">
 
-            {restaurant.dishes.length > 0 ? (
-              <>
-                {/* Horizontal chip scroll — §17.7 amber-50/amber-700 pill style */}
-                <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
-                  {restaurant.dishes.map((dish) => (
-                    <span
-                      key={dish.id}
-                      className="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700"
-                    >
-                      {dish.canonicalName}
-                    </span>
+            {/* ── Desktop left column: hero ─────────────── */}
+            <aside className="hidden lg:block lg:sticky lg:top-8" aria-label="Restaurant photo">
+              <RestaurantHero
+                photos={restaurant.photos}
+                name={restaurant.name}
+                confidenceScoreBand={restaurant.confidenceScoreBand}
+              />
+            </aside>
+
+            {/* ── Detail sections (right on desktop, full-width on mobile) */}
+            <div className="space-y-10 mt-8 lg:mt-0">
+
+              {/* ── 2. Identity ─────────────────────────── */}
+              <section aria-label="Restaurant identity">
+                {/* Semantic h1 — hero overlay is decorative (aria-hidden) §13.2 */}
+                <h1 className="font-display font-bold text-neutral-900 leading-tight mb-3 text-2xl md:text-3xl lg:text-4xl">
+                  {restaurant.name}
+                </h1>
+
+                <TrustBadge
+                  scoreBand={restaurant.confidenceScoreBand}
+                  showBand
+                  className="mb-4"
+                />
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {restaurant.cuisineTypes.map((cuisine) => (
+                    <Badge key={cuisine} variant="category">{cuisine}</Badge>
                   ))}
+                  <Badge
+                    variant={PRICE_VARIANT[restaurant.priceRange]}
+                    aria-label={`Price range: ${restaurant.priceRange.toLowerCase()}`}
+                  >
+                    {PRICE_DISPLAY[restaurant.priceRange]}
+                  </Badge>
                 </div>
+              </section>
 
-                {/* DishCard grid — 1 col mobile, 2 tablet, 3 desktop §17.7 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {restaurant.dishes.map((dish) => (
-                    <DishCard key={dish.id} dish={dish} />
-                  ))}
-                </div>
-              </>
-            ) : (
-              /* Empty state — §15.2 */
-              <div
-                className="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-neutral-100"
-                role="status"
-                aria-label="No dishes listed"
-              >
-                <p className="font-display text-xl font-semibold text-neutral-700 mb-1">
-                  No dishes listed yet
-                </p>
-                <p className="text-base text-neutral-500">
-                  This restaurant hasn't had its dishes catalogued yet.
-                </p>
-              </div>
-            )}
-          </section>
+              {/* ── 3. Location ─────────────────────────── */}
+              <RestaurantContactSection {...contactProps} show="location" />
 
-          {/* ── 5. Photo Gallery ─────────────────────────── */}
-          <section aria-label="Photos">
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4">Photos</h2>
-            <PhotoGallery
-              photos={restaurant.photos}
-              restaurantName={restaurant.name}
-            />
-          </section>
+              {/* ── 4. Dishes ───────────────────────────── */}
+              <section aria-label="What they serve">
+                <h2 className="font-display text-2xl font-semibold text-neutral-800 mb-5">
+                  What they serve
+                </h2>
 
-          {/* ── 6. About — omitted if null or < 10 chars §16.5 */}
-          {hasDescription && (
-            <section aria-label="About">
-              <h2 className="text-xl font-semibold text-neutral-800 mb-3">About</h2>
-              <p className="text-md text-neutral-700 max-w-prose leading-relaxed">
-                {restaurant.description}
-              </p>
-            </section>
-          )}
+                {restaurant.dishes.length > 0 ? (
+                  <>
+                    {/* Horizontal chip scroll — §17.7 amber-50/amber-700 pill style */}
+                    <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
+                      {restaurant.dishes.map((dish) => (
+                        <span
+                          key={dish.id}
+                          className="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700"
+                        >
+                          {dish.canonicalName}
+                        </span>
+                      ))}
+                    </div>
 
+                    {/* DishCard grid — 1 col mobile, 2 tablet, 3 desktop §17.7 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {restaurant.dishes.map((dish) => (
+                        <DishCard key={dish.id} dish={dish} />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  /* Empty state — §15.2 */
+                  <div
+                    className="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-neutral-100"
+                    role="status"
+                    aria-label="No dishes listed"
+                  >
+                    <p className="font-display text-xl font-semibold text-neutral-700 mb-1">
+                      No dishes listed yet
+                    </p>
+                    <p className="text-base text-neutral-500">
+                      This restaurant hasn't had its dishes catalogued yet.
+                    </p>
+                  </div>
+                )}
+              </section>
+
+              {/* ── 5. Contact ──────────────────────────── */}
+              <RestaurantContactSection {...contactProps} show="contact" />
+
+              {/* ── 6. Photo Gallery ────────────────────── */}
+              {/* §8.2: galleryPhotos excludes primary (hero-only) */}
+              <section aria-label="Photos">
+                <h2 className="text-xl font-semibold text-neutral-800 mb-4">Photos</h2>
+                <PhotoGallery
+                  photos={galleryPhotos}
+                  restaurantName={restaurant.name}
+                />
+              </section>
+
+              {/* ── 7. About — omitted if null or < 10 chars §16.5 */}
+              {hasDescription && (
+                <section aria-label="About">
+                  <h2 className="text-xl font-semibold text-neutral-800 mb-3">About</h2>
+                  <p className="text-md text-neutral-700 max-w-prose leading-relaxed">
+                    {restaurant.description}
+                  </p>
+                </section>
+              )}
+
+            </div>
+          </div>
         </div>
       </article>
     </>

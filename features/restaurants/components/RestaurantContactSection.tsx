@@ -38,6 +38,11 @@ function mapsUrl(address: string, city: string): string {
 
 // ─── Types ─────────────────────────────────────────────────────
 
+// show='location' → renders only the MapPin + area/address/city block (§13.2 section 3)
+// show='contact'  → renders only phone/website/email (§13.2 section 5)
+// show='all'      → renders both (default, for single-section use)
+type ContactSectionShow = 'location' | 'contact' | 'all'
+
 interface RestaurantContactSectionProps {
   phone:      string
   address:    string
@@ -46,6 +51,7 @@ interface RestaurantContactSectionProps {
   state:      string
   website:    string | null
   email:      string | null
+  show?:      ContactSectionShow
   className?: string
 }
 
@@ -59,76 +65,84 @@ export function RestaurantContactSection({
   state,
   website,
   email,
+  show = 'all',
   className,
 }: RestaurantContactSectionProps) {
+  const showLocation = show === 'all' || show === 'location'
+  const showContact  = show === 'all' || show === 'contact'
+
   return (
     <section
       className={cn('space-y-5', className)}
-      aria-label="Contact and location"
+      aria-label={show === 'location' ? 'Location' : show === 'contact' ? 'Contact' : 'Contact and location'}
     >
       {/* ── Location ────────────────────────────────────── */}
-      <div className="flex gap-3">
-        <MapPin
-          size={16}
-          strokeWidth={1.5}
-          className="shrink-0 text-neutral-500 mt-0.5"
-          aria-hidden="true"
-        />
+      {showLocation && (
+        <div className="flex gap-3">
+          <MapPin
+            size={16}
+            strokeWidth={1.5}
+            className="shrink-0 text-neutral-500 mt-0.5"
+            aria-hidden="true"
+          />
 
-        <div className="space-y-0.5 min-w-0">
-          {/* Area — neighbourhood context (§9.4) */}
-          {area && (
-            <p className="text-base font-medium text-neutral-700">
-              {area}
-            </p>
-          )}
-
-          {/* Address — tappable, opens native maps (§10.3) */}
-          <a
-            href={mapsUrl(address, city)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              'text-base text-neutral-600',
-              'hover:text-amber-600 underline underline-offset-2 decoration-neutral-300',
-              'hover:decoration-amber-500 transition-colors duration-fast',
-              'focus-visible:outline-none focus-visible:shadow-brand',
+          <div className="space-y-0.5 min-w-0">
+            {/* Area — neighbourhood context (§9.4) */}
+            {area && (
+              <p className="text-base font-medium text-neutral-700">
+                {area}
+              </p>
             )}
-            aria-label={`${address} — open in maps`}
-          >
-            {address}
-          </a>
 
-          {/* City, State */}
-          <p className="text-base text-neutral-500">
-            {city}, {state}
-          </p>
+            {/* Address — tappable, opens native maps (§10.3) */}
+            <a
+              href={mapsUrl(address, city)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                'text-base text-neutral-600',
+                'hover:text-amber-600 underline underline-offset-2 decoration-neutral-300',
+                'hover:decoration-amber-500 transition-colors duration-fast',
+                'focus-visible:outline-none focus-visible:shadow-brand',
+              )}
+              aria-label={`${address} — open in maps`}
+            >
+              {address}
+            </a>
+
+            {/* City, State */}
+            <p className="text-base text-neutral-500">
+              {city}, {state}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Phone ───────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
-        <Phone
-          size={16}
-          strokeWidth={1.5}
-          className="shrink-0 text-neutral-500"
-          aria-hidden="true"
-        />
-        <a
-          href={`tel:${phone.replace(/\s/g, '')}`}
-          className={cn(
-            'text-base text-neutral-900 font-medium',
-            'hover:text-amber-600 transition-colors duration-fast',
-            'focus-visible:outline-none focus-visible:shadow-brand',
-          )}
-          aria-label={`Call ${phone}`}
-        >
-          {phone}
-        </a>
-      </div>
+      {showContact && (
+        <div className="flex items-center gap-3">
+          <Phone
+            size={16}
+            strokeWidth={1.5}
+            className="shrink-0 text-neutral-500"
+            aria-hidden="true"
+          />
+          <a
+            href={`tel:${phone.replace(/\s/g, '')}`}
+            className={cn(
+              'text-base text-neutral-900 font-medium',
+              'hover:text-amber-600 transition-colors duration-fast',
+              'focus-visible:outline-none focus-visible:shadow-brand',
+            )}
+            aria-label={`Call ${phone}`}
+          >
+            {phone}
+          </a>
+        </div>
+      )}
 
       {/* ── Website ─────────────────────────────────────── */}
-      {website && (
+      {showContact && website && (
         <div className="flex items-center gap-3">
           <Globe
             size={16}
@@ -153,7 +167,7 @@ export function RestaurantContactSection({
       )}
 
       {/* ── Email ───────────────────────────────────────── */}
-      {email && (
+      {showContact && email && (
         <div className="flex items-center gap-3">
           <Mail
             size={16}
