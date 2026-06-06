@@ -13,20 +13,24 @@
 // Governed by: restaurant-listing-track.md §17.3, design-system-v1.md §9.4
 
 import { ConsumerBottomNav } from '@/components/layout/ConsumerBottomNav'
+import { ConsumerTopNav } from '@/components/layout/ConsumerTopNav'
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-50">
+      {/* Sticky desktop top nav — hidden on mobile, shown at lg+ */}
+      <ConsumerTopNav />
+
       {/*
         pb-16 on mobile reserves 64px for the fixed bottom nav.
         lg:pb-0 removes the reservation on desktop (no bottom nav).
-        min-h ensures the layout fills the viewport even for short pages.
+        ConsumerTopNav is sticky in normal flow — no extra pt needed.
       */}
       <main className="flex-1 pb-16 lg:pb-0">
         {children}
       </main>
 
-      {/* Fixed bottom nav — rendered client-side for usePathname active state */}
+      {/* Fixed mobile bottom nav — rendered client-side for usePathname active state */}
       <ConsumerBottomNav />
     </div>
   )

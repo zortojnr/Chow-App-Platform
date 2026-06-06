@@ -11,14 +11,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { House, Search, Bookmark, User } from 'lucide-react'
+import { House, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// v1 Abuja launch: Discover + Search only.
+// Saved and Profile restore with Track 5 (User Accounts).
 const NAV_ITEMS = [
-  { label: 'Discover', href: '/',                icon: House },
-  { label: 'Search',   href: '/search',           icon: Search },
-  { label: 'Saved',    href: '/dashboard/saved',  icon: Bookmark },
-  { label: 'Profile',  href: '/dashboard',        icon: User },
+  { label: 'Discover', href: '/',       icon: House },
+  { label: 'Search',   href: '/search', icon: Search },
 ] as const
 
 // Track 4 §10.4: Search tab activates on /search*, /dishes/*, /category/*
