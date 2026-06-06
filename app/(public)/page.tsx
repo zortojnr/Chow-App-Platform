@@ -37,7 +37,8 @@ export default async function HomePage() {
   // Read city preference from cookie for server-side discovery sections
   const cookieStore = await cookies()
   const rawCity = cookieStore.get('chow-city')?.value
-  const city = rawCity ? decodeURIComponent(rawCity) : null
+  // v1: default to Abuja so discovery sections always show "Popular in Abuja"
+  const city = rawCity ? decodeURIComponent(rawCity) : 'Abuja'
 
   // Pre-fetch popular dishes to pass IDs to TrendingSection for deduplication
   const popularDishes = await DiscoveryService.getPopularDishes({

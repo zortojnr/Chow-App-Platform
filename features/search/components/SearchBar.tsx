@@ -35,12 +35,8 @@ import { useSearchSuggestions } from '../hooks/useSearchSuggestions'
 import { useSearchStore } from '../stores/search.store'
 import { Badge } from '@/components/ui/badge'
 
-// ─── Nigerian cities for city selector ───────────────────────
-
-const NIGERIAN_CITIES = [
-  'Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano',
-  'Benin City', 'Kaduna', 'Enugu', 'Onitsha', 'Owerri',
-]
+// v1: Abuja only. Expand when multi-city launches.
+const NIGERIAN_CITIES = ['Abuja']
 
 // ─── Category display names ───────────────────────────────────
 
@@ -264,10 +260,10 @@ export function SearchBar({
           // Min touch target
           'h-8',
         )}
-        aria-label={cityContext ? `Current city: ${cityContext}. Tap to change.` : 'Select city'}
+        aria-label={cityContext ? `Current city: ${cityContext}. Tap to change.` : 'City: Abuja'}
         aria-expanded={cityMenuOpen}
       >
-        {cityContext ?? 'All cities'}
+        {cityContext ?? 'Abuja'}
         <ChevronDown size={12} strokeWidth={2} aria-hidden="true" />
       </button>
 
@@ -281,17 +277,6 @@ export function SearchBar({
           )}
           role="menu"
         >
-          <button
-            role="menuitem"
-            className={cn(
-              'w-full text-left px-3 py-2 text-sm',
-              'transition-colors duration-fast',
-              !cityContext ? 'text-amber-600 font-medium' : 'text-neutral-700 hover:bg-neutral-50',
-            )}
-            onMouseDown={() => { setCityContext(null); setCityMenuOpen(false) }}
-          >
-            All cities
-          </button>
           {NIGERIAN_CITIES.map((c) => (
             <button
               key={c}
@@ -480,7 +465,7 @@ export function SearchBar({
             {/* City indicator */}
             <div className="px-4 py-2.5 bg-neutral-0 border-b border-neutral-100 flex items-center gap-2">
               <span className="text-xs text-neutral-500">
-                {cityContext ? `Showing results in ${cityContext}` : 'Showing all cities'}
+                {cityContext ? `Showing results in ${cityContext}` : 'Showing results in Abuja'}
               </span>
               {cityChip}
             </div>

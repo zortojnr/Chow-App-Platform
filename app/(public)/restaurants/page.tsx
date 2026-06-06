@@ -4,7 +4,7 @@
 // No auth required. City and priceRange filters via URL search params.
 //
 // Layout (§13.3):
-//   - Page heading: Fraunces text-4xl — "Nigerian Restaurants" / "... in Lagos"
+//   - Page heading: Fraunces text-4xl — "Nigerian Restaurants" / "... in Abuja"
 //   - City filter tabs (URL-based, no client JS)
 //   - RestaurantCard grid: 2 col mobile, 3 tablet, 4 desktop
 //   - Pagination: previous / next links
@@ -21,9 +21,8 @@ import { cn } from '@/lib/utils'
 
 export const revalidate = 300
 
-// Phase 1: curated list of primary Nigerian cities for the filter bar.
-// Phase 2: derive dynamically from approved restaurant cities.
-const FILTER_CITIES = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano']
+// v1: Abuja only. Expand FILTER_CITIES when multi-city launches.
+const FILTER_CITIES = ['Abuja']
 
 interface Props {
   searchParams: Promise<{ city?: string; page?: string }>
@@ -182,7 +181,7 @@ export default async function RestaurantBrowsePage({ searchParams }: Props) {
               href="/restaurants"
               className="text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors duration-fast underline underline-offset-2 focus-visible:outline-none focus-visible:shadow-brand"
             >
-              View all cities
+              View all in Abuja
             </Link>
           )}
         </div>

@@ -58,7 +58,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 // ─── Page ────────────────────────────────────────────────────
 
-const FILTER_CITIES = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano']
+// v1: Abuja only. Expand when multi-city launches.
+const FILTER_CITIES = ['Abuja']
 
 export default async function CategoryBrowsePage({ params, searchParams }: Props) {
   const { 'category-slug': slug }     = await params

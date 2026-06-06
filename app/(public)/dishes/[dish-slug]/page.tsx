@@ -66,7 +66,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   const description = city
     ? `Find verified Nigerian restaurants serving ${dish.canonicalName} in ${city}. Confirmed dishes and real photos.`
-    : `Find verified Nigerian restaurants serving ${dish.canonicalName}. Browse all cities.`
+    : `Find verified Nigerian restaurants serving ${dish.canonicalName} in Abuja.`
 
   return {
     title,
@@ -78,7 +78,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 // ─── Page ────────────────────────────────────────────────────
 
-const FILTER_CITIES = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano']
+// v1: Abuja only. Expand when multi-city launches.
+const FILTER_CITIES = ['Abuja']
 
 export default async function DishLandingPage({ params, searchParams }: Props) {
   const { 'dish-slug': slug } = await params
@@ -242,8 +243,8 @@ export default async function DishLandingPage({ params, searchParams }: Props) {
               </h2>
               <p className="text-base text-neutral-600 max-w-sm mb-6">
                 {city
-                  ? `We haven't verified this dish in ${city}. It may be available in other cities.`
-                  : `No verified restaurants serve this dish yet.`}
+                  ? `We haven't verified this dish in ${city} yet. More restaurants are being added.`
+                  : `No verified restaurants serve this dish in Abuja yet.`}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
@@ -257,7 +258,7 @@ export default async function DishLandingPage({ params, searchParams }: Props) {
                     href={buildHref()}
                     className="inline-flex items-center justify-center h-11 px-6 rounded-[10px] bg-neutral-0 text-neutral-700 text-base font-semibold border border-neutral-300 hover:bg-neutral-50 transition-colors duration-fast focus-visible:outline-none focus-visible:shadow-brand"
                   >
-                    View all cities
+                    View all in Abuja
                   </Link>
                 )}
               </div>
