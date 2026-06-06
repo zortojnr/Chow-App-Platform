@@ -2,6 +2,7 @@ import { DishCategory } from "@prisma/client";
 
 export interface DishSeedEntry {
   canonicalName: string;
+  slug: string;
   aliases: string[];
   category: DishCategory;
   subcategory?: string;
@@ -12,18 +13,21 @@ export const DISHES: DishSeedEntry[] = [
   // ─── RICE DISHES (10) ───────────────────────────────────────
   {
     canonicalName: "Jollof Rice",
+    slug: "jollof-rice",
     aliases: ["party jollof", "Nigerian jollof"],
     category: DishCategory.RICE_DISHES,
     description: "Smoky tomato-based rice cooked in a single pot, a West African staple.",
   },
   {
     canonicalName: "Fried Rice",
+    slug: "fried-rice",
     aliases: ["Nigerian fried rice"],
     category: DishCategory.RICE_DISHES,
     description: "Stir-fried rice with mixed vegetables, liver, and seasoning.",
   },
   {
     canonicalName: "Ofada Rice",
+    slug: "ofada-rice",
     aliases: ["ofada", "local rice"],
     category: DishCategory.RICE_DISHES,
     subcategory: "Local Varieties",
@@ -31,18 +35,21 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Coconut Rice",
+    slug: "coconut-rice",
     aliases: ["coconut jollof"],
     category: DishCategory.RICE_DISHES,
     description: "Rice cooked in coconut milk with spices and seafood.",
   },
   {
     canonicalName: "Plain Rice",
+    slug: "plain-rice",
     aliases: ["white rice", "steamed rice"],
     category: DishCategory.RICE_DISHES,
     description: "Plain steamed white rice, typically served with stew or sauce.",
   },
   {
     canonicalName: "Tuwo Shinkafa",
+    slug: "tuwo-shinkafa",
     aliases: ["tuwo", "tuwon shinkafa"],
     category: DishCategory.RICE_DISHES,
     subcategory: "Northern",
@@ -50,24 +57,28 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Jollof Spaghetti",
+    slug: "jollof-spaghetti",
     aliases: ["spaghetti jollof", "naija spaghetti"],
     category: DishCategory.RICE_DISHES,
     description: "Spaghetti cooked in tomato-based sauce in the jollof style.",
   },
   {
     canonicalName: "Rice and Stew",
+    slug: "rice-and-stew",
     aliases: ["white rice and stew", "rice and tomato stew"],
     category: DishCategory.RICE_DISHES,
     description: "Plain steamed rice paired with Nigerian tomato stew.",
   },
   {
     canonicalName: "Fried Rice with Chicken",
+    slug: "fried-rice-with-chicken",
     aliases: ["chicken fried rice"],
     category: DishCategory.RICE_DISHES,
     description: "Nigerian-style fried rice served with grilled or fried chicken.",
   },
   {
     canonicalName: "Native Rice",
+    slug: "native-rice",
     aliases: ["abacha rice", "ofada stew rice"],
     category: DishCategory.RICE_DISHES,
     subcategory: "Local Varieties",
@@ -77,12 +88,14 @@ export const DISHES: DishSeedEntry[] = [
   // ─── SOUPS (15) ─────────────────────────────────────────────
   {
     canonicalName: "Egusi Soup",
+    slug: "egusi-soup",
     aliases: ["egusi", "melon seed soup"],
     category: DishCategory.SOUPS,
     description: "Rich soup made from ground melon seeds, leafy greens, and assorted meats.",
   },
   {
     canonicalName: "Efo Riro",
+    slug: "efo-riro",
     aliases: ["efo", "vegetable soup yoruba"],
     category: DishCategory.SOUPS,
     subcategory: "Yoruba",
@@ -90,12 +103,14 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Ogbono Soup",
+    slug: "ogbono-soup",
     aliases: ["ogbono", "draw soup with ogbono", "wild mango seed soup"],
     category: DishCategory.SOUPS,
     description: "Thick, mucilaginous soup made from ground ogbono seeds.",
   },
   {
     canonicalName: "Banga Soup",
+    slug: "banga-soup",
     aliases: ["banga", "palm nut soup", "ofe akwu"],
     category: DishCategory.SOUPS,
     subcategory: "Delta/Igbo",
@@ -103,6 +118,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Afang Soup",
+    slug: "afang-soup",
     aliases: ["afang", "okazi and waterleaf soup"],
     category: DishCategory.SOUPS,
     subcategory: "Cross River/Akwa Ibom",
@@ -110,6 +126,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Edikang Ikong",
+    slug: "edikang-ikong",
     aliases: ["edikaikong", "edikang ikong soup"],
     category: DishCategory.SOUPS,
     subcategory: "Cross River/Akwa Ibom",
@@ -117,12 +134,14 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Vegetable Soup",
+    slug: "vegetable-soup",
     aliases: ["ofe akwukwo", "ugu soup"],
     category: DishCategory.SOUPS,
     description: "General Nigerian leafy green soup with palm oil and assorted proteins.",
   },
   {
     canonicalName: "Groundnut Soup",
+    slug: "groundnut-soup",
     aliases: ["peanut soup", "miyan gyada"],
     category: DishCategory.SOUPS,
     subcategory: "Northern",
@@ -130,6 +149,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Bitterleaf Soup",
+    slug: "bitterleaf-soup",
     aliases: ["ofe onugbu", "ofe olufe"],
     category: DishCategory.SOUPS,
     subcategory: "Igbo",
@@ -137,18 +157,21 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Okra Soup",
+    slug: "okra-soup",
     aliases: ["okro soup", "ila asepo"],
     category: DishCategory.SOUPS,
     description: "Slimy-textured soup made with sliced or blended okra.",
   },
   {
     canonicalName: "Draw Soup",
+    slug: "draw-soup",
     aliases: ["otong soup", "ofe ede"],
     category: DishCategory.SOUPS,
     description: "Sticky textured soup made with a blend of ogbono and okra.",
   },
   {
     canonicalName: "White Soup",
+    slug: "white-soup",
     aliases: ["ofe ocha", "nsala soup", "catfish pepper soup"],
     category: DishCategory.SOUPS,
     subcategory: "Igbo",
@@ -156,6 +179,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Oha Soup",
+    slug: "oha-soup",
     aliases: ["ora soup", "ofe ora"],
     category: DishCategory.SOUPS,
     subcategory: "Igbo",
@@ -163,6 +187,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Ofe Onugbu",
+    slug: "ofe-onugbu",
     aliases: ["bitter leaf ofe", "igbo bitter leaf soup"],
     category: DishCategory.SOUPS,
     subcategory: "Igbo",
@@ -170,6 +195,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Miyan Kuka",
+    slug: "miyan-kuka",
     aliases: ["luru soup", "kuka soup"],
     category: DishCategory.SOUPS,
     subcategory: "Northern/Hausa-Fulani",
@@ -179,24 +205,28 @@ export const DISHES: DishSeedEntry[] = [
   // ─── SWALLOW (6) ────────────────────────────────────────────
   {
     canonicalName: "Pounded Yam",
+    slug: "pounded-yam",
     aliases: ["iyan", "pounded yam balls"],
     category: DishCategory.SWALLOW,
     description: "Smooth stretchy dough made by pounding boiled yam in a mortar.",
   },
   {
     canonicalName: "Eba",
+    slug: "eba",
     aliases: ["garri", "eba balls"],
     category: DishCategory.SWALLOW,
     description: "Stiff dough made by mixing garri (dried cassava) with hot water.",
   },
   {
     canonicalName: "Fufu",
+    slug: "fufu",
     aliases: ["akpu", "cassava fufu"],
     category: DishCategory.SWALLOW,
     description: "Soft, stretchy dough made from fermented cassava pulp.",
   },
   {
     canonicalName: "Amala",
+    slug: "amala",
     aliases: ["amala iyán", "yam flour swallow"],
     category: DishCategory.SWALLOW,
     subcategory: "Yoruba",
@@ -204,12 +234,14 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Semovita",
+    slug: "semovita",
     aliases: ["semo", "semolina swallow"],
     category: DishCategory.SWALLOW,
     description: "Smooth white swallow made from semolina flour.",
   },
   {
     canonicalName: "Tuwo Masara",
+    slug: "tuwo-masara",
     aliases: ["corn tuwo", "maize swallow"],
     category: DishCategory.SWALLOW,
     subcategory: "Northern",
@@ -219,12 +251,14 @@ export const DISHES: DishSeedEntry[] = [
   // ─── PROTEIN / GRILLS (8) ───────────────────────────────────
   {
     canonicalName: "Suya",
+    slug: "suya",
     aliases: ["tsire", "beef suya", "chicken suya"],
     category: DishCategory.PROTEIN,
     description: "Spiced, skewered grilled meat coated in suya spice (yaji) blend.",
   },
   {
     canonicalName: "Asun",
+    slug: "asun",
     aliases: ["peppered goat meat", "smoked goat"],
     category: DishCategory.PROTEIN,
     subcategory: "Yoruba",
@@ -232,18 +266,21 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Peppered Chicken",
+    slug: "peppered-chicken",
     aliases: ["peppered chicken wings", "fried peppered chicken"],
     category: DishCategory.PROTEIN,
     description: "Fried or grilled chicken tossed in a spicy pepper sauce.",
   },
   {
     canonicalName: "Peppersoup",
+    slug: "peppersoup",
     aliases: ["pepper soup", "catfish pepper soup", "goat pepper soup"],
     category: DishCategory.PROTEIN,
     description: "Thin, peppery broth with assorted meats or fish and native spices.",
   },
   {
     canonicalName: "Nkwobi",
+    slug: "nkwobi",
     aliases: ["nkwobi cow foot", "ukpaka nkwobi"],
     category: DishCategory.PROTEIN,
     subcategory: "Igbo",
@@ -251,6 +288,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Isi Ewu",
+    slug: "isi-ewu",
     aliases: ["goat head", "isi-ewu"],
     category: DishCategory.PROTEIN,
     subcategory: "Igbo",
@@ -258,6 +296,7 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Kilishi",
+    slug: "kilishi",
     aliases: ["kelechi", "dried spiced meat"],
     category: DishCategory.PROTEIN,
     subcategory: "Northern",
@@ -265,44 +304,51 @@ export const DISHES: DishSeedEntry[] = [
   },
   {
     canonicalName: "Grilled Fish",
+    slug: "grilled-fish",
     aliases: ["boli and fish", "whole grilled fish", "buka fish"],
     category: DishCategory.PROTEIN,
     description: "Whole fish grilled over open flame with pepper and spice rub.",
   },
 
-  // ─── STREET FOOD / SNACKS (6) ───────────────────────────────
+  // ─── STREET FOOD (6) ────────────────────────────────────────
   {
     canonicalName: "Akara",
+    slug: "akara",
     aliases: ["bean cake", "bean fritters", "acaraje"],
     category: DishCategory.STREET_FOOD,
     description: "Deep-fried black-eyed pea fritters, commonly eaten as breakfast or snack.",
   },
   {
     canonicalName: "Puff Puff",
+    slug: "puff-puff",
     aliases: ["puff-puff", "buns"],
     category: DishCategory.STREET_FOOD,
     description: "Deep-fried yeasted dough balls — a classic Nigerian street snack.",
   },
   {
     canonicalName: "Boli",
+    slug: "boli",
     aliases: ["roasted plantain", "bole"],
     category: DishCategory.STREET_FOOD,
     description: "Roasted ripe plantain, commonly served with groundnut or fish.",
   },
   {
     canonicalName: "Roasted Corn",
+    slug: "roasted-corn",
     aliases: ["oka ina", "barbeque corn"],
     category: DishCategory.STREET_FOOD,
     description: "Maize cobs roasted over charcoal, a popular roadside snack.",
   },
   {
     canonicalName: "Moi Moi",
+    slug: "moi-moi",
     aliases: ["moimoi", "bean pudding", "steamed bean cake"],
     category: DishCategory.STREET_FOOD,
     description: "Steamed black-eyed pea pudding with peppers, onions, and fillings.",
   },
   {
     canonicalName: "Gizdodo",
+    slug: "gizdodo",
     aliases: ["gizzard dodo", "gizzard and plantain"],
     category: DishCategory.STREET_FOOD,
     description: "Fried plantain and gizzard tossed in a spicy sauce.",
@@ -311,30 +357,35 @@ export const DISHES: DishSeedEntry[] = [
   // ─── BREAKFAST (5) ──────────────────────────────────────────
   {
     canonicalName: "Yam and Egg Sauce",
+    slug: "yam-and-egg-sauce",
     aliases: ["fried yam and egg", "yam egg stew"],
     category: DishCategory.BREAKFAST,
     description: "Boiled or fried yam served with Nigerian-style egg sauce.",
   },
   {
     canonicalName: "Beans and Plantain",
+    slug: "beans-and-plantain",
     aliases: ["ewa and dodo", "beans and dodo"],
     category: DishCategory.BREAKFAST,
     description: "Cooked beans paired with fried ripe plantain.",
   },
   {
     canonicalName: "Akara and Pap",
+    slug: "akara-and-pap",
     aliases: ["akara and ogi", "bean cake and pap"],
     category: DishCategory.BREAKFAST,
     description: "Bean fritters served alongside warm corn porridge.",
   },
   {
     canonicalName: "Ogi",
+    slug: "ogi",
     aliases: ["pap", "akamu", "corn porridge"],
     category: DishCategory.BREAKFAST,
     description: "Fermented cereal porridge made from corn, millet, or sorghum.",
   },
   {
     canonicalName: "Bread and Beans",
+    slug: "bread-and-beans",
     aliases: ["agege bread and beans", "butter beans and bread"],
     category: DishCategory.BREAKFAST,
     description: "Soft agege bread served with sweetened Nigerian brown or black-eyed beans.",

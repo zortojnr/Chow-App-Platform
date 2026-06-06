@@ -18,6 +18,7 @@ async function seedDishTaxonomy(systemUserId: string): Promise<void> {
     await prisma.dishTaxonomy.upsert({
       where: { canonicalName: dish.canonicalName },
       update: {
+        slug: dish.slug,
         aliases: dish.aliases,
         category: dish.category,
         subcategory: dish.subcategory ?? null,
@@ -25,6 +26,7 @@ async function seedDishTaxonomy(systemUserId: string): Promise<void> {
       },
       create: {
         canonicalName: dish.canonicalName,
+        slug: dish.slug,
         aliases: dish.aliases,
         category: dish.category,
         subcategory: dish.subcategory ?? null,

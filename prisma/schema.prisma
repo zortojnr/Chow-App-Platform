@@ -89,6 +89,7 @@ model User {
 model DishTaxonomy {
   id            String       @id @default(uuid())
   canonicalName String       @unique @db.VarChar(150)
+  slug          String       @unique @db.VarChar(200)
   aliases       String[]
   category      DishCategory
   subcategory   String?      @db.VarChar(100)
@@ -106,6 +107,7 @@ model DishTaxonomy {
 
   @@index([isActive])
   @@index([category])
+  @@index([slug])
 }
 
 // ─────────────────────────────────────────────────────────────
