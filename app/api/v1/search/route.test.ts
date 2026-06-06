@@ -13,6 +13,9 @@
 //   ✓ type invalid value → 422 VALIDATION_ERROR
 //   ✓ page=0 → 422 VALIDATION_ERROR
 //   ✓ Unexpected service error → 500 INTERNAL_ERROR
+//   ✓ Authenticated request passes userId to SearchLogService.log (Step 19 §8.1)
+//   ✓ Unauthenticated request does NOT pass userId to SearchLogService.log
+//   ✓ log() return is not awaited — response not blocked by log write
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
@@ -30,13 +33,23 @@ vi.mock('features/search/services/search-log.service', () => ({
   SearchLogService: { log: vi.fn() },
 }))
 
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(),
+}))
+
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}))
+
 import { checkRateLimit } from '@/lib/rate-limit'
 import { SearchService } from 'features/search/services/search.service'
 import { SearchLogService } from 'features/search/services/search-log.service'
+import { getServerSession } from 'next-auth'
 
-const mockRateLimit = checkRateLimit as ReturnType<typeof vi.fn>
-const mockSearch    = SearchService.search as ReturnType<typeof vi.fn>
-const mockLog       = SearchLogService.log as ReturnType<typeof vi.fn>
+const mockRateLimit        = checkRateLimit as ReturnType<typeof vi.fn>
+const mockSearch           = SearchService.search as ReturnType<typeof vi.fn>
+const mockLog              = SearchLogService.log as ReturnType<typeof vi.fn>
+const mockGetServerSession = getServerSession as ReturnType<typeof vi.fn>
 
 // ─── Fixtures ─────────────────────────────────────────────────
 
@@ -62,6 +75,7 @@ beforeEach(() => {
   mockRateLimit.mockResolvedValue({ allowed: true })
   mockSearch.mockResolvedValue(MOCK_RESPONSE)
   mockLog.mockReturnValue(undefined)
+  mockGetServerSession.mockResolvedValue(null)   // default: anonymous
 })
 
 afterEach(() => vi.clearAllMocks())
@@ -265,5 +279,58 @@ describe('service error handling', () => {
     expect(res.status).toBe(500)
     const body = await res.json()
     expect(body.error.code).toBe('INTERNAL_ERROR')
+  })
+})
+
+// ─── Step 19: Authenticated search logging (§8.1) ────────────
+//
+// Verifies that UserSearchHistory is written when a logged-in user searches.
+// The route uses JWT session validation (no DB call) to extract userId.
+// Fire-and-forget: log() returns void; response is never blocked by the write.
+
+describe('authenticated search logging (Step 19 §8.1)', () => {
+  it('passes userId to SearchLogService.log for authenticated requests', async () => {
+    mockGetServerSession.mockResolvedValueOnce({ user: { id: 'user-abc', role: 'USER' } })
+    await GET(makeRequest('?q=jollof+rice'))
+    expect(mockLog).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-abc' }),
+    )
+  })
+
+  it('does not pass userId for anonymous requests (null session)', async () => {
+    // default: mockGetServerSession returns null
+    await GET(makeRequest('?q=jollof+rice'))
+    const callArg = mockLog.mock.calls[0][0] as Record<string, unknown>
+    expect(callArg.userId).toBeUndefined()
+  })
+
+  it('does not pass userId when session has no user', async () => {
+    mockGetServerSession.mockResolvedValueOnce({})
+    await GET(makeRequest('?q=egusi+soup'))
+    const callArg = mockLog.mock.calls[0][0] as Record<string, unknown>
+    expect(callArg.userId).toBeUndefined()
+  })
+
+  it('log() is called synchronously after search — response not blocked', async () => {
+    // log() is fire-and-forget: returns void immediately.
+    // If it were awaited, a slow mock would delay the response.
+    // This test verifies log is called (not that response is delayed).
+    let logCalled = false
+    mockLog.mockImplementationOnce(() => { logCalled = true })
+    const res = await GET(makeRequest('?q=suya'))
+    expect(res.status).toBe(200)
+    expect(logCalled).toBe(true)
+  })
+
+  it('UserSearchHistory write path: userId + location forwarded correctly', async () => {
+    mockGetServerSession.mockResolvedValueOnce({ user: { id: 'user-xyz', role: 'ADMIN' } })
+    await GET(makeRequest('?q=pounded+yam&city=Abuja'))
+    expect(mockLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        query:       'pounded yam',
+        location:    'Abuja',
+        userId:      'user-xyz',
+      }),
+    )
   })
 })

@@ -223,6 +223,28 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   SEARCH RESULT CARD ENTRANCE
+   design-system-v1.md §7.5, §11.3 — 300ms ease-out stagger entrance.
+   Applied to SearchRestaurantCard grid items after skeleton exit.
+   Stagger delay is applied via inline style animation-delay on each card.
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter {
+  animation: cardEnter 300ms var(--ease-out) both;
+}
+
+/* ─────────────────────────────────────────────────────────────
    SCROLLBAR UTILITIES
    Used by PhotoGallery horizontal snap scroll on mobile.
    ───────────────────────────────────────────────────────────── */

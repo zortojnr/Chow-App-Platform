@@ -11,6 +11,8 @@
 // Governed by: track-04-search-discovery.md §14.1, §3.2, §8.1
 
 import { type NextRequest } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { SearchService } from 'features/search/services/search.service'
 import { SearchLogService } from 'features/search/services/search-log.service'
 import { SearchQuerySchema } from 'features/search/schemas/search.schema'
@@ -39,13 +41,19 @@ export async function GET(request: NextRequest) {
 
     const { q, type, city, area, page } = parsed.data
 
+    // JWT validation — fast (no DB call). Provides userId for authenticated searches.
+    const session = await getServerSession(authOptions)
+    const userId  = session?.user?.id ?? undefined
+
     const result = await SearchService.search({ query: q, type, city, area, page })
 
     // Fire-and-forget — never awaited
+    // userId present → also writes UserSearchHistory (§8.1)
     SearchLogService.log({
       query: q,
       location: city ?? null,
       resultCount: result.total,
+      userId,
     })
 
     return successResponse(result)

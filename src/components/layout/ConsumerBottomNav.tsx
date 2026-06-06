@@ -21,6 +21,15 @@ const NAV_ITEMS = [
   { label: 'Profile',  href: '/dashboard',        icon: User },
 ] as const
 
+// Track 4 §10.4: Search tab activates on /search*, /dishes/*, /category/*
+function isSearchRoute(pathname: string) {
+  return (
+    pathname.startsWith('/search') ||
+    pathname.startsWith('/dishes/') ||
+    pathname.startsWith('/category/')
+  )
+}
+
 export function ConsumerBottomNav() {
   const pathname = usePathname()
 
@@ -32,7 +41,12 @@ export function ConsumerBottomNav() {
     >
       <ul className="flex items-stretch h-16">
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-          const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
+          const isActive =
+            href === '/'
+              ? pathname === '/'
+              : href === '/search'
+                ? isSearchRoute(pathname)
+                : pathname.startsWith(href)
 
           return (
             <li key={href} className="flex-1">

@@ -280,6 +280,7 @@ export const RestaurantListingService = {
     page?: number
     limit?: number
     priceRange?: PriceRange
+    cuisineType?: DishCategory   // Track 4: filter by DishCategory for category browse pages
   }): Promise<RestaurantIndexResponse> {
     const page  = Math.max(1, params.page  ?? 1)
     const limit = Math.min(20, Math.max(1, params.limit ?? 12))
@@ -292,6 +293,9 @@ export const RestaurantListingService = {
         ? { city: { equals: params.city, mode: 'insensitive' as const } }
         : {}),
       ...(params.priceRange ? { priceRange: params.priceRange } : {}),
+      ...(params.cuisineType
+        ? { dishes: { some: { dish: { category: params.cuisineType }, deletedAt: null } } }
+        : {}),
     }
 
     const [restaurants, total] = await Promise.all([
