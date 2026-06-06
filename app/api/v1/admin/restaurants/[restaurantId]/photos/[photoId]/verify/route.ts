@@ -26,8 +26,9 @@ import {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { restaurantId: string; photoId: string } },
+  { params }: { params: Promise<{ restaurantId: string; photoId: string }> },
 ) {
+  const { photoId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -45,7 +46,7 @@ export async function PATCH(
     if (!parsed.success) return validationErrorResponse(parsed.error)
 
     const result = await IntelligenceService.verifyPhoto({
-      photoId:    params.photoId,
+      photoId:    photoId,
       adminId:    session.user.id,
       isVerified: parsed.data.isVerified,
       isPrimary:  parsed.data.isPrimary,

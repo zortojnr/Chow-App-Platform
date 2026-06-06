@@ -83,7 +83,7 @@ function makeRequest(body: unknown, headers: Record<string, string> = {}): NextR
   )
 }
 
-const PARAMS = { params: { token: RAW_TOKEN } }
+const PARAMS = { params: Promise.resolve({ token: RAW_TOKEN }) }
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 

@@ -29,7 +29,7 @@ function makeRequest() {
   return new NextRequest(`http://localhost/api/v1/admin/verification/${RESTAURANT_ID}/history`)
 }
 
-const PARAMS = { params: { restaurantId: RESTAURANT_ID } }
+const PARAMS = { params: Promise.resolve({ restaurantId: RESTAURANT_ID }) }
 
 beforeEach(() => {
   mockSession.mockResolvedValue(ADMIN_SESSION)

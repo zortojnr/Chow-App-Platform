@@ -25,8 +25,9 @@ const RATE_WINDOW_MS = 60 * 1000
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { dishId: string } },
+  { params }: { params: Promise<{ dishId: string }> },
 ) {
+  const { dishId } = await params
   try {
     const ip = extractIp(request)
 
@@ -38,7 +39,6 @@ export async function GET(
     if (!parsed.success) return validationErrorResponse(parsed.error)
 
     const { q, city, area, page } = parsed.data
-    const { dishId } = params
 
     const { results, total } = await DishRestaurantService.getDishRestaurants(
       dishId,

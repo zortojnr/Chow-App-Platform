@@ -86,7 +86,7 @@ function makeRequest(slug = SLUG, ip = '1.2.3.4'): NextRequest {
 }
 
 function makeParams(slug = SLUG) {
-  return { params: { slug } }
+  return { params: Promise.resolve({ slug }) }
 }
 
 // ─── Setup ────────────────────────────────────────────────────────────────────

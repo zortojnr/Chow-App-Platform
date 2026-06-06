@@ -57,7 +57,7 @@ function makeRequest(query = '', ip = '1.2.3.4'): NextRequest {
   })
 }
 
-const MOCK_PARAMS = { params: { dishId: 'dt-123' } }
+const MOCK_PARAMS = { params: Promise.resolve({ dishId: 'dt-123' }) }
 
 beforeEach(() => {
   mockRateLimit.mockResolvedValue({ allowed: true })

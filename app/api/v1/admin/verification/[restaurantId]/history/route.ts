@@ -24,8 +24,9 @@ import {
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { restaurantId: string } },
+  { params }: { params: Promise<{ restaurantId: string }> },
 ) {
+  const { restaurantId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -34,7 +35,7 @@ export async function GET(
     const rl = await checkRateLimit(`admin:${session.user.id}`, 200, 60_000)
     if (!rl.allowed) return rateLimitResponse(rl.retryAfterMs)
 
-    const events = await QueueService.getHistory(params.restaurantId)
+    const events = await QueueService.getHistory(restaurantId)
 
     return successResponse({ events })
   } catch (error) {

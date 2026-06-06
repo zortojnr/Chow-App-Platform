@@ -30,8 +30,9 @@ import {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { restaurantId: string; dishId: string } },
+  { params }: { params: Promise<{ restaurantId: string; dishId: string }> },
 ) {
+  const { dishId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -54,7 +55,7 @@ export async function PATCH(
     // verifyDish: sets verifiedAt (last-confirmed timestamp) and optionally nameAsServed
     if (verifiedAt !== undefined || nameAsServed !== undefined) {
       const res = await IntelligenceService.verifyDish({
-        restaurantDishId: params.dishId,
+        restaurantDishId: dishId,
         adminId:          session.user.id,
         verifiedAt:       verifiedAt ? new Date(verifiedAt) : undefined,
         nameAsServed,
@@ -67,7 +68,7 @@ export async function PATCH(
     // updateAvailability: no score recalculation
     if (availabilityStatus !== undefined) {
       await IntelligenceService.updateAvailability({
-        restaurantDishId:   params.dishId,
+        restaurantDishId:   dishId,
         adminId:            session.user.id,
         availabilityStatus,
       })
@@ -77,7 +78,7 @@ export async function PATCH(
     // updatePricing: no score recalculation
     if (price !== undefined) {
       await IntelligenceService.updatePricing({
-        restaurantDishId: params.dishId,
+        restaurantDishId: dishId,
         adminId:          session.user.id,
         price,
       })

@@ -29,7 +29,7 @@ function makeRequest(body: unknown = VALID_BODY) {
   )
 }
 
-const PARAMS = { params: { restaurantId: RESTAURANT_ID } }
+const PARAMS = { params: Promise.resolve({ restaurantId: RESTAURANT_ID }) }
 
 beforeEach(() => {
   mockSession.mockResolvedValue(SUPER_SESSION)

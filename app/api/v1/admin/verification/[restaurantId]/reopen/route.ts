@@ -24,8 +24,9 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { restaurantId: string } },
+  { params }: { params: Promise<{ restaurantId: string }> },
 ) {
+  const { restaurantId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -35,13 +36,13 @@ export async function POST(
     if (!rl.allowed) return rateLimitResponse(rl.retryAfterMs)
 
     await VerificationService.reopen({
-      restaurantId: params.restaurantId,
+      restaurantId,
       actorId:      session.user.id,
       actorRole:    session.user.role as 'ADMIN' | 'SUPER',
       ipAddress:    extractIp(request),
     })
 
-    return successResponse({ restaurantId: params.restaurantId })
+    return successResponse({ restaurantId })
   } catch (error) {
     return serverErrorResponse(error)
   }

@@ -36,9 +36,9 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } },
+  { params }: { params: Promise<{ token: string }> },
 ) {
-  const { token } = params
+  const { token } = await params
 
   try {
     // Step 1 — rate limit keyed by token hash (not IP) to prevent brute-force scanning

@@ -31,15 +31,16 @@ const RATE_WINDOW_MS = 60 * 1000
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
+  const { slug } = await params
   try {
     const ip = extractIp(request)
 
     const rl = await checkRateLimit(`restaurant-profile:${ip}`, RATE_LIMIT, RATE_WINDOW_MS)
     if (!rl.allowed) return rateLimitResponse(rl.retryAfterMs)
 
-    const restaurant = await RestaurantListingService.getRestaurantProfile(params.slug)
+    const restaurant = await RestaurantListingService.getRestaurantProfile(slug)
     if (!restaurant) return errorResponse('NOT_FOUND', 'Restaurant not found', 404)
 
     return successResponse(restaurant)

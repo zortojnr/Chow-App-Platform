@@ -30,8 +30,9 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { restaurantId: string } },
+  { params }: { params: Promise<{ restaurantId: string }> },
 ) {
+  const { restaurantId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -50,7 +51,7 @@ export async function POST(
 
     // assignAdmin is non-throwing — failure is silently swallowed at service layer
     await VerificationService.assignAdmin({
-      restaurantId: params.restaurantId,
+      restaurantId,
       adminId:      parsed.data.adminId,
     })
 

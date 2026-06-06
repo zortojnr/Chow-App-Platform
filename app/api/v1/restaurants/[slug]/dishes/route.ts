@@ -34,8 +34,9 @@ const RATE_WINDOW_MS = 60 * 1000
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
+  const { slug } = await params
   try {
     const ip = extractIp(request)
 
@@ -43,7 +44,7 @@ export async function GET(
     if (!rl.allowed) return rateLimitResponse(rl.retryAfterMs)
 
     // 1. Resolve slug → ID, enforce APPROVED gate
-    const restaurant = await RestaurantListingService.getRestaurantProfile(params.slug)
+    const restaurant = await RestaurantListingService.getRestaurantProfile(slug)
     if (!restaurant) return errorResponse('NOT_FOUND', 'Restaurant not found', 404)
 
     // 2. Parse and validate query params

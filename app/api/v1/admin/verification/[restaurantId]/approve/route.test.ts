@@ -32,7 +32,7 @@ function makeRequest(body: unknown = {}) {
   )
 }
 
-const PARAMS = { params: { restaurantId: RESTAURANT_ID } }
+const PARAMS = { params: Promise.resolve({ restaurantId: RESTAURANT_ID }) }
 
 beforeEach(() => {
   mockSession.mockResolvedValue(ADMIN_SESSION)

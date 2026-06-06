@@ -130,14 +130,15 @@ function ReviewPageSkeleton() {
 
 // ─── Page ──────────────────────────────────────────────────────
 
-export default function ReviewPage({
+export default async function ReviewPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   return (
     <Suspense fallback={<ReviewPageSkeleton />}>
-      <ReviewContent restaurantId={params.id} />
+      <ReviewContent restaurantId={id} />
     </Suspense>
   )
 }

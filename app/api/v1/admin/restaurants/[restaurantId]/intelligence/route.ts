@@ -27,8 +27,9 @@ import {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { restaurantId: string } },
+  { params }: { params: Promise<{ restaurantId: string }> },
 ) {
+  const { restaurantId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -46,7 +47,7 @@ export async function PATCH(
     if (!parsed.success) return validationErrorResponse(parsed.error)
 
     const result = await IntelligenceService.recalculateRestaurantIntelligence({
-      restaurantId: params.restaurantId,
+      restaurantId,
       adminId:      session.user.id,
       fields:       parsed.data,
     })

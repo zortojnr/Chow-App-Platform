@@ -28,8 +28,9 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { restaurantId: string } },
+  { params }: { params: Promise<{ restaurantId: string }> },
 ) {
+  const { restaurantId } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session) return errorResponse('UNAUTHORIZED', 'Authentication required', 401)
@@ -47,7 +48,7 @@ export async function POST(
     if (!parsed.success) return validationErrorResponse(parsed.error)
 
     await VerificationService.requestInfo({
-      restaurantId:        params.restaurantId,
+      restaurantId,
       actorId:             session.user.id,
       actorRole:           session.user.role as 'ADMIN' | 'SUPER',
       ipAddress:           extractIp(request),

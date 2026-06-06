@@ -107,14 +107,15 @@ function IntelligencePageSkeleton() {
 
 // ─── Page ──────────────────────────────────────────────────────
 
-export default function IntelligencePage({
+export default async function IntelligencePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   return (
     <Suspense fallback={<IntelligencePageSkeleton />}>
-      <IntelligenceContent restaurantId={params.id} />
+      <IntelligenceContent restaurantId={id} />
     </Suspense>
   )
 }

@@ -22,9 +22,9 @@ import './globals.css'
 const fraunces = Fraunces({
   subsets:  ['latin'],
   variable: '--font-fraunces',
-  weight:   ['400', '600', '700'],
+  weight:   'variable',
   // opsz: optical size (9–144). SOFT: character softness (0=authority, 50=warmth).
-  // design-system-v1.md §3.1 — SOFT=0 for editorial, SOFT=50 for conversational.
+  // design-system-v1.md §3.1 — axes require weight:'variable' in next/font.
   axes: ['opsz', 'SOFT'],
   display: 'swap',
 })
