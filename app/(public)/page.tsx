@@ -17,7 +17,7 @@
 
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
-import { SearchBar } from 'features/search/components/SearchBar'
+import { HeroVideoSection } from './HeroVideoSection'
 import { CategoryChips } from 'features/search/components/CategoryChips'
 import { PopularDishesSection } from 'features/search/components/PopularDishesSection'
 import { TrendingDishesSection } from 'features/search/components/TrendingDishesSection'
@@ -73,41 +73,7 @@ export default async function HomePage() {
       <div className="min-h-screen bg-neutral-50">
 
         {/* ── Section 1: Search Hero ─────────────────────────── */}
-        <section
-          className="bg-neutral-0 border-b border-neutral-100 px-4 pt-10 pb-8 md:pt-14 md:pb-10"
-          aria-label="Search"
-        >
-          <div className="max-w-2xl mx-auto">
-            {/* Wordmark */}
-            <div className="text-center mb-6">
-              <h1 className="font-display text-4xl md:text-5xl font-bold text-amber-500 mb-2">
-                Chow Here
-              </h1>
-              <p className="font-display text-base md:text-lg text-neutral-600">
-                Find verified Nigerian restaurants, dish by dish.
-              </p>
-            </div>
-
-            {/* Search bar — full width hero mode */}
-            <div className="relative">
-              {/* Desktop: inline search bar */}
-              <div className="hidden lg:block">
-                <SearchBar heroMode placeholder="Search for a dish..." />
-              </div>
-              {/* Mobile: tap-to-expand trigger */}
-              <div className="lg:hidden">
-                <SearchBar heroMode placeholder="Search for a dish..." />
-              </div>
-            </div>
-
-            {/* City context — shown below search bar */}
-            {city && (
-              <p className="text-sm text-neutral-500 text-center mt-3">
-                Showing results in <span className="font-medium text-neutral-700">{city}</span>
-              </p>
-            )}
-          </div>
-        </section>
+      <HeroVideoSection city={city} />
 
         {/* ── Main discovery content ────────────────────────── */}
         <div className="max-w-7xl mx-auto py-8 md:py-10 space-y-10 md:space-y-12">
