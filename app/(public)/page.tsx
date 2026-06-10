@@ -17,7 +17,7 @@
 
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
-import { HeroVideoSection } from './HeroVideoSection'
+import IntroHero from './IntroHero'
 import { CategoryChips } from 'features/search/components/CategoryChips'
 import { PopularDishesSection } from 'features/search/components/PopularDishesSection'
 import { TrendingDishesSection } from 'features/search/components/TrendingDishesSection'
@@ -73,7 +73,7 @@ export default async function HomePage() {
       <div className="min-h-screen bg-neutral-50">
 
         {/* ── Section 1: Search Hero ─────────────────────────── */}
-      <HeroVideoSection city={city} />
+        <IntroHero city={city} />
 
         {/* ── Main discovery content ────────────────────────── */}
         <div className="max-w-7xl mx-auto py-8 md:py-10 space-y-10 md:space-y-12">

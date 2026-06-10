@@ -7,6 +7,7 @@ const HERO_VIDEO_SRC = 'https://res.cloudinary.com/dzr18sd58/video/upload/v17810
 
 interface HeroVideoSectionProps {
   city?: string
+  playVideo?: boolean
 }
 
 const textVariant = {
@@ -14,7 +15,7 @@ const textVariant = {
   visible: { opacity: 1, y: 0 },
 }
 
-export function HeroVideoSection({ city }: HeroVideoSectionProps) {
+export function HeroVideoSection({ city, playVideo = true }: HeroVideoSectionProps) {
   const reduceMotion = useReducedMotion()
 
   return (
@@ -26,7 +27,7 @@ export function HeroVideoSection({ city }: HeroVideoSectionProps) {
         <video
           className="absolute inset-0 h-full w-full object-cover"
           src={HERO_VIDEO_SRC}
-          autoPlay
+          autoPlay={playVideo}
           muted
           loop
           playsInline
