@@ -20,7 +20,7 @@ export function HeroVideoSection({ city, playVideo = true }: HeroVideoSectionPro
 
   return (
     <section
-      className="relative overflow-hidden bg-neutral-0 border-b border-neutral-100 px-4 pt-10 pb-8 md:pt-14 md:pb-10"
+      className="relative overflow-hidden bg-neutral-0 w-full min-h-[60vh] md:min-h-screen flex items-center justify-center"
       aria-label="Search"
     >
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -37,7 +37,7 @@ export function HeroVideoSection({ city, playVideo = true }: HeroVideoSectionPro
         <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/95" />
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto">
+      <div className="relative z-10 max-w-2xl mx-auto px-4 w-full">
         <motion.div
           initial={reduceMotion ? undefined : 'hidden'}
           animate="visible"
