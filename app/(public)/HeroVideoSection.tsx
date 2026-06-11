@@ -17,7 +17,7 @@ export function HeroVideoSection({ city }: HeroVideoSectionProps) {
 
   return (
     <section
-      className="relative overflow-hidden bg-neutral-0 w-full min-h-[60vh] md:min-h-screen flex items-center justify-center"
+      className="relative overflow-hidden bg-neutral-0 w-full h-[60vh] md:min-h-screen flex items-center justify-center"
       aria-label="Search"
     >
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
