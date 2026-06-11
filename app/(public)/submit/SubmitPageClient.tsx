@@ -298,7 +298,7 @@ function Step1({
           />
           <FieldError message={errors.address} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="area" optional>Area / Neighbourhood</Label>
             <Input
@@ -869,13 +869,13 @@ function NavButtons({
   submitting?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between pt-4 gap-3">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-between pt-4 gap-3">
       {onBack ? (
         <button
           type="button"
           onClick={onBack}
           className={cn(
-            'flex items-center gap-1.5 px-4 h-11 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-700',
+            'w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 h-11 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-700',
             'hover:bg-neutral-100 transition-colors duration-fast',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40',
           )}
@@ -891,7 +891,7 @@ function NavButtons({
         onClick={onNext}
         disabled={submitting}
         className={cn(
-          'flex items-center gap-1.5 px-6 h-11 rounded-xl text-sm font-semibold',
+          'w-full sm:w-auto flex items-center justify-center gap-1.5 px-6 h-11 rounded-xl text-sm font-semibold sm:flex-1',
           'bg-amber-500 text-neutral-0 hover:bg-amber-600',
           'transition-colors duration-fast',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40',
