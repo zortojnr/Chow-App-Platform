@@ -29,7 +29,7 @@ export function CategoryChips({ activeSlug, className }: CategoryChipsProps) {
       aria-label="Browse by food category"
       className={cn('w-full', className)}
     >
-      <p className="text-xs font-medium text-neutral-500 uppercase tracking-[0.08em] mb-3 px-4 md:px-0">
+      <p className="text-center md:text-left text-xs font-medium text-neutral-500 uppercase tracking-[0.08em] mb-3 px-4 md:px-0">
         What are you in the mood for?
       </p>
 

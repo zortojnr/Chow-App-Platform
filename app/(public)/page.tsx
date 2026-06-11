@@ -76,7 +76,7 @@ export default async function HomePage() {
         <IntroHero city={city} />
 
         {/* ── Main discovery content ────────────────────────── */}
-        <div className="max-w-7xl mx-auto py-8 md:py-10 space-y-10 md:space-y-12">
+<div className="max-w-7xl mx-auto py-8 md:py-10 space-y-8 md:space-y-12">
 
           {/* ── Section 2: Category Chips ──────────────────── */}
           <div className="md:px-6 lg:px-8">
