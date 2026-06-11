@@ -3,11 +3,8 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { SearchBar } from 'features/search/components/SearchBar'
 
-const HERO_VIDEO_SRC = 'https://res.cloudinary.com/dzr18sd58/video/upload/v1781097458/Ramen_ingredients_transforming_i__202606101416_h6lyzl.mp4'
-
 interface HeroVideoSectionProps {
   city?: string
-  playVideo?: boolean
 }
 
 const textVariant = {
@@ -15,7 +12,7 @@ const textVariant = {
   visible: { opacity: 1, y: 0 },
 }
 
-export function HeroVideoSection({ city, playVideo = true }: HeroVideoSectionProps) {
+export function HeroVideoSection({ city }: HeroVideoSectionProps) {
   const reduceMotion = useReducedMotion()
 
   return (
@@ -24,17 +21,24 @@ export function HeroVideoSection({ city, playVideo = true }: HeroVideoSectionPro
       aria-label="Search"
     >
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          src={HERO_VIDEO_SRC}
-          autoPlay={playVideo}
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/95" />
+        <motion.div
+          initial={{ opacity: 0.78, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          className="absolute inset-0"
+        >
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src="https://res.cloudinary.com/dzr18sd58/video/upload/v1781097458/Ramen_ingredients_transforming_i__202606101416_h6lyzl.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/70 to-white/95" />
+        </motion.div>
       </div>
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 w-full">
@@ -71,14 +75,7 @@ export function HeroVideoSection({ city, playVideo = true }: HeroVideoSectionPro
             transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : 0.9, ease: 'easeOut' }}
             className="relative"
           >
-            <div className="relative">
-              <div className="hidden lg:block">
-                <SearchBar heroMode placeholder="Search for a dish..." />
-              </div>
-              <div className="lg:hidden">
-                <SearchBar heroMode placeholder="Search for a dish..." />
-              </div>
-            </div>
+            <SearchBar heroMode placeholder="Search for a dish..." />
             {city && (
               <p className="text-sm text-neutral-500 text-center mt-3">
                 Showing results in <span className="font-medium text-neutral-700">{city}</span>

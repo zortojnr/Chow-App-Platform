@@ -305,7 +305,7 @@ export function SearchBar({
         ref={containerRef}
         className={cn(
           'relative',
-          heroMode ? 'w-full' : 'hidden lg:block w-full max-w-xl',
+          heroMode ? 'hidden lg:block w-full' : 'hidden lg:block w-full max-w-xl',
           className,
         )}
       >
@@ -313,9 +313,7 @@ export function SearchBar({
           className={cn(
             'flex items-center gap-2 px-4',
             'bg-neutral-0 border rounded-[10px]',
-            isOpen
-              ? 'border-amber-500 shadow-brand'
-              : 'border-neutral-200 hover:border-neutral-300',
+            isOpen ? 'border-amber-500' : 'border-neutral-200 hover:border-neutral-300',
             'transition-all duration-fast',
             heroMode ? 'h-[52px]' : 'h-[44px]',
           )}

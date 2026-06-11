@@ -5,8 +5,6 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { HeroVideoSection } from './HeroVideoSection'
 import { TypewriterText } from './TypewriterText'
 
-const HERO_VIDEO_SRC = 'https://res.cloudinary.com/dzr18sd58/video/upload/v1781097458/Ramen_ingredients_transforming_i__202606101416_h6lyzl.mp4'
-
 // Intro timeline constants (in seconds)
 const TYPEWRITER_START = 0.3
 const TYPEWRITER_DURATION = 1.8
@@ -22,12 +20,10 @@ export default function IntroHero({ city }: IntroHeroProps) {
   const reduceMotion = useReducedMotion()
   const [showIntro, setShowIntro] = useState(!reduceMotion)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [heroPlay, setHeroPlay] = useState(false)
 
   useEffect(() => {
     if (reduceMotion) {
       setShowIntro(false)
-      setHeroPlay(true)
       return
     }
 
@@ -37,7 +33,6 @@ export default function IntroHero({ city }: IntroHeroProps) {
     // Start transition after welcome text settles
     transitionTimer = setTimeout(() => {
       setIsTransitioning(true)
-      setHeroPlay(true)
       // Remove intro overlay after transition animation completes
       exitTimer = setTimeout(() => {
         setShowIntro(false)
@@ -50,21 +45,17 @@ export default function IntroHero({ city }: IntroHeroProps) {
     }
   }, [reduceMotion])
 
-  const handleVideoError = () => {
-    setIsTransitioning(true)
-    setHeroPlay(true)
-    setTimeout(() => {
-      setShowIntro(false)
-    }, 300)
-  }
-
-  // Intro container: fullscreen initially, scales down to hero size during transition
+  // Intro container: fullscreen initially, then lifts and fades while the hero slides in.
   const introContainerVariants = {
     initial: {
+      opacity: 1,
+      y: 0,
       scale: 1,
     },
     transition: {
-      scale: 0.48,
+      opacity: 0.28,
+      y: -20,
+      scale: 0.96,
     },
   }
 
@@ -76,23 +67,13 @@ export default function IntroHero({ city }: IntroHeroProps) {
             key="intro-overlay"
             initial="initial"
             animate={isTransitioning ? 'transition' : 'initial'}
-            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            exit={{ opacity: 0, transition: { duration: 0.3, ease: 'easeOut' } }}
             variants={introContainerVariants}
             transition={{ duration: TRANSITION_DURATION, ease: 'easeInOut' }}
             className="fixed inset-0 z-50 w-full h-full flex items-center justify-center bg-black origin-top"
             aria-hidden={true}
           >
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              src={HERO_VIDEO_SRC}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onError={handleVideoError}
-            />
-
-            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-black" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
 
             {/* Welcome text with typewriter effect */}
@@ -109,18 +90,18 @@ export default function IntroHero({ city }: IntroHeroProps) {
         )}
       </AnimatePresence>
 
-      {/* Hero section with fade-in animation during transition */}
+      {/* Hero section with fluid entrance during transition */}
       <motion.div
         className="relative z-0"
-        initial={{ opacity: heroPlay ? 1 : 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 28, scale: 1.03 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{
           duration: TRANSITION_DURATION,
           delay: TRANSITION_START,
           ease: 'easeOut',
         }}
       >
-        <HeroVideoSection city={city} playVideo={heroPlay} />
+        <HeroVideoSection city={city} />
       </motion.div>
     </div>
   )
