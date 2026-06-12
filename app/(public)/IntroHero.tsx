@@ -14,7 +14,6 @@ const TYPEWRITER_START = 0.3
 const TYPEWRITER_DURATION = 1.8
 const TRANSITION_START = 2.8 // after typewriter completes + hold
 const TRANSITION_DURATION = 1.2
-const TOTAL_INTRO_TIME = TRANSITION_START + TRANSITION_DURATION
 
 interface IntroHeroProps {
   city?: string
@@ -22,18 +21,19 @@ interface IntroHeroProps {
 
 export default function IntroHero({ city }: IntroHeroProps) {
   const reduceMotion = useReducedMotion()
-  const [showIntro, setShowIntro] = useState(false)
+
+  // Lazy initializer: runs synchronously on the client during first render,
+  // so Framer Motion reads the correct value for `initial` before mounting.
+  // Server always returns false (no localStorage); client resolves immediately.
+  const [showIntro, setShowIntro] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    if (reduceMotion) return false
+    return getShouldShowWelcomeIntro()
+  })
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   useEffect(() => {
-    if (reduceMotion) {
-      setShowIntro(false)
-      return
-    }
-
-    const shouldShowIntro = getShouldShowWelcomeIntro()
-    setShowIntro(shouldShowIntro)
-    if (!shouldShowIntro) return
+    if (!showIntro) return  // returning visitor — nothing to do
 
     let transitionTimer: ReturnType<typeof setTimeout>
     let exitTimer: ReturnType<typeof setTimeout>
@@ -52,7 +52,7 @@ export default function IntroHero({ city }: IntroHeroProps) {
       clearTimeout(transitionTimer)
       clearTimeout(exitTimer)
     }
-  }, [reduceMotion])
+  }, [showIntro])
 
   // Intro container: fullscreen initially, then lifts and fades while the hero slides in.
   const introContainerVariants = {
@@ -104,16 +104,18 @@ export default function IntroHero({ city }: IntroHeroProps) {
         )}
       </AnimatePresence>
 
-      {/* Hero section with fluid entrance during transition */}
+      {/* Hero section — animates in only on first visit (showIntro=true).
+          Returning visitors get initial={false} which tells Framer Motion to
+          skip the animation entirely and render at the animate state immediately. */}
       <motion.div
         className="relative z-0"
-        initial={{ opacity: 0, y: 28, scale: 1.03 }}
+        initial={showIntro ? { opacity: 0, y: 28, scale: 1.03 } : false}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{
+        transition={showIntro ? {
           duration: TRANSITION_DURATION,
           delay: TRANSITION_START,
           ease: 'easeOut',
-        }}
+        } : undefined}
       >
         <HeroVideoSection city={city} />
       </motion.div>
