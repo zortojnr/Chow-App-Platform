@@ -9,9 +9,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Navigation, MapPin, UtensilsCrossed } from 'lucide-react'
+import { Navigation, UtensilsCrossed } from 'lucide-react'
 import { useLocationStore } from 'features/location/stores/location.store'
-import { useUserLocation } from 'features/location/hooks/useUserLocation'
 import { formatDistance } from '@/lib/geo'
 
 type NearbyRestaurant = {
@@ -32,7 +31,6 @@ interface NearYouSectionProps {
 
 export function NearYouSection({ limit = 6 }: NearYouSectionProps) {
   const { permission, latitude, longitude } = useLocationStore()
-  const { requestLocation } = useUserLocation()
   const [restaurants, setRestaurants] = useState<NearbyRestaurant[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -49,29 +47,8 @@ export function NearYouSection({ limit = 6 }: NearYouSectionProps) {
       .finally(() => setLoading(false))
   }, [permission, latitude, longitude, limit])
 
-  // GPS not yet asked — show nudge
-  if (permission === 'idle') {
-    return (
-      <section aria-labelledby="near-you-heading" className="px-4 md:px-0">
-        <h2
-          id="near-you-heading"
-          className="font-display text-xl md:text-2xl font-semibold text-neutral-900 mb-4"
-        >
-          Near You
-        </h2>
-        <button
-          onClick={requestLocation}
-          className="flex items-center gap-3 w-full md:w-auto px-5 py-4 rounded-xl border border-amber-200 bg-amber-50 text-left hover:bg-amber-100 transition-colors duration-fast focus-visible:outline-none focus-visible:shadow-brand"
-        >
-          <MapPin size={20} className="shrink-0 text-amber-500" aria-hidden="true" />
-          <div>
-            <p className="text-sm font-semibold text-neutral-800">Find restaurants near you</p>
-            <p className="text-xs text-neutral-500 mt-0.5">Share your location to see what's close</p>
-          </div>
-        </button>
-      </section>
-    )
-  }
+  // GPS not yet asked — entry point is the button in the search bar
+  if (permission === 'idle') return null
 
   // GPS denied or unavailable
   if (permission === 'denied' || permission === 'unavailable') return null

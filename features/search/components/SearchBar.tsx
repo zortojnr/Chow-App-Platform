@@ -29,11 +29,13 @@
 
 import { useRef, useState, useEffect, useCallback, useId } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, X, ArrowLeft, ChevronDown, Clock } from 'lucide-react'
+import { Search, X, ArrowLeft, ChevronDown, Clock, Navigation } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSearchSuggestions } from '../hooks/useSearchSuggestions'
 import { useSearchStore } from '../stores/search.store'
 import { Badge } from '@/components/ui/badge'
+import { useLocationStore } from 'features/location/stores/location.store'
+import { useUserLocation } from 'features/location/hooks/useUserLocation'
 
 // v1: Abuja only. Expand when multi-city launches.
 const NIGERIAN_CITIES = ['Abuja']
@@ -79,6 +81,9 @@ export function SearchBar({
 
   const { cityContext, setCityContext, anonRecentSearches, addAnonRecentSearch } = useSearchStore()
   const { data: suggestions = [] } = useSearchSuggestions(inputValue)
+
+  const { permission } = useLocationStore()
+  const { requestLocation } = useUserLocation()
 
   // Show idle recent searches when empty, suggestions when typing
   const showSuggestions = isOpen && inputValue.trim().length >= 2 && suggestions.length > 0
@@ -459,12 +464,24 @@ export function SearchBar({
               </button>
             </div>
 
-            {/* City indicator */}
-            <div className="px-4 py-2.5 bg-neutral-0 border-b border-neutral-100 flex items-center gap-2">
-              <span className="text-xs text-neutral-500">
-                {cityContext ? `Showing results in ${cityContext}` : 'Showing results in Abuja'}
-              </span>
-              {cityChip}
+            {/* City indicator + GPS nudge */}
+            <div className="px-4 py-2.5 bg-neutral-0 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-neutral-500">
+                  {cityContext ? `Showing results in ${cityContext}` : 'Showing results in Abuja'}
+                </span>
+                {cityChip}
+              </div>
+              {permission === 'idle' && (
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors duration-fast focus-visible:outline-none focus-visible:shadow-brand"
+                >
+                  <Navigation size={11} aria-hidden="true" />
+                  Find restaurants near you
+                </button>
+              )}
             </div>
 
             {/* Suggestion list — inline (no separate panel on mobile) */}
