@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 import { SearchBar } from 'features/search/components/SearchBar'
 
@@ -52,6 +53,16 @@ export function HeroVideoSection({ city }: HeroVideoSectionProps) {
             transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
             className="text-center mb-6"
           >
+            <div className="mx-auto mb-4 block sm:hidden w-20 h-24">
+              <Image
+                src="/asset-2.webp"
+                alt="Chow Here logo"
+                width={96}
+                height={132}
+                className="w-full h-full object-contain"
+                priority
+              />
+            </div>
             <h1 className="font-display text-4xl md:text-5xl font-bold text-amber-500 mb-2">
               Chow Here
             </h1>

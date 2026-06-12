@@ -27,10 +27,28 @@ import Link from 'next/link'
 
 export const revalidate = 3600
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://chowere.com'
+
 export const metadata: Metadata = {
   title:       'Chow Here Find Verified Nigerian Restaurants, Dish by Dish',
   description: 'Discover the best Nigerian restaurants near you. Search by dish — Jollof Rice, Egusi, Suya, and more. Every listing is verified by our team.',
-  alternates:  { canonical: process.env.NEXT_PUBLIC_APP_URL },
+  alternates:  { canonical: appUrl },
+  openGraph: {
+    title: 'Chow Here Find Verified Nigerian Restaurants, Dish by Dish',
+    description: 'Discover the best Nigerian restaurants near you. Search by dish — Jollof Rice, Egusi, Suya, and more.',
+    images: [
+      {
+        url: `${appUrl}/asset-2.webp`,
+        width: 736,
+        height: 1004,
+        alt: 'Chow Here logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: [`${appUrl}/asset-2.webp`],
+  },
 }
 
 export default async function HomePage() {
