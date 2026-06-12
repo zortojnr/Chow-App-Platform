@@ -692,16 +692,18 @@ All UI is currently unbuilt. The service and API layer is complete enough to sup
 | `IntakeFormContainer` | `features/restaurants/components/IntakeForm/` | `/submit` |
 | `DishTypeahead` | `features/restaurants/components/` | Step 2 of intake form |
 
-### Post-Track-2 tracks (not yet designed or started)
+### Post-Track-2 tracks
 
-| Track | Systems |
-|---|---|
-| Track 3 | Restaurant Listing System — public-facing restaurant profiles |
-| Track 4 | Search System — full-text dish search, alias matching, geo-aware ranking |
-| Track 5 | User System — accounts, saved dishes, search history |
-| Track 6 | Admin Platform — analytics, taxonomy management, platform health metrics |
+| Track | Systems | Doc Status |
+|---|---|---|
+| Track 3 | Restaurant Listing System — public-facing restaurant profiles | COMPLETE |
+| Track 4 | Search System — full-text dish search, alias matching, geo-aware ranking | COMPLETE |
+| Track 5 | User System — accounts, saved dishes, search history | Not yet documented |
+| Track 6 | Admin Platform — analytics, taxonomy management, platform health metrics | Not yet documented |
+| Track 7 | Navigation & Location Intelligence — GPS discovery, proximity search, restaurant map, real-time tracking | `docs/tracks/track-07-navigation-location.md` — SPECIFIED, awaiting implementation |
+| Track 8 | Arrival Confirmation & Quality Loop — arrival detection backend, ArrivalRecord schema, quality signal loop | Not yet documented — depends on Track 7 |
 
-No implementation documents exist yet for Tracks 3–6. Each track document must be created and approved before any implementation begins (per architecture governance law).
+Each track document must be created and approved before any implementation begins (per architecture governance law).
 
 ---
 
@@ -719,6 +721,7 @@ The following known gaps and accepted limitations exist. None are blockers for T
 | ~~No Next.js middleware for admin route protection~~ | **RESOLVED 2026-06-04.** `middleware.ts` implemented at project root. Redirects unauthenticated → `/login?callbackUrl=…`, wrong-role → `/`. Layer 2 route handler checks remain in place. | — |
 | No `restaurant-listing-track.md` | Track 3 has no architecture document. | Create before beginning Track 3 implementation. |
 | No `user-accounts-track.md` | Track 5 has no architecture document. | Create before beginning Track 5 implementation. |
+| Track 7 schema migration not yet applied | `Restaurant.latitude`, `.longitude`, `.geocodedAt`, `.geocodeConf` fields specified in `track-07-navigation-location.md §6` but migration `015_add_restaurant_coordinates` has not been written or applied. | Step 0 of Track 7 implementation sequence — must be done before any Track 7 service code. |
 
 ---
 

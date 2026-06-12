@@ -145,7 +145,15 @@ model Restaurant {
   city                String             @db.VarChar(100)
   state               String             @db.VarChar(100)
   area                String?            @db.VarChar(100)
-  // Note: latitude/longitude are not in Phase 1. GPS fields will be added as a safe nullable migration in Phase 2 when PostGIS distance search is implemented. See search-architecture.md §5.3.
+
+  // GPS coordinates — Phase 2 (Track 7: Navigation & Location Intelligence)
+  // Set by admin via geocoding service or manual coordinate override.
+  // NEVER populated from user GPS data — only from server-side geocoding of the restaurant address.
+  // null = not yet geocoded. Consumers only receive these when geocodeConf is HIGH or MEDIUM.
+  latitude            Float?             // WGS84 decimal degrees
+  longitude           Float?             // WGS84 decimal degrees
+  geocodedAt          DateTime?          // when coordinates were last set
+  geocodeConf         String?            @db.VarChar(10)  // 'HIGH' | 'MEDIUM' | 'LOW'
 
   // Contact
   phone               String             @db.VarChar(20)
@@ -184,6 +192,9 @@ model Restaurant {
   @@index([slug])
   @@index([deletedAt])
   @@index([confidenceScore])
+  // Partial index on geocoded restaurants (Track 7) — added via raw SQL migration
+  // CREATE INDEX idx_restaurant_geocoded ON "Restaurant" (latitude, longitude)
+  // WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 }
 
 enum VerificationStatus {
@@ -572,6 +583,47 @@ Migrations are numbered and executed in this sequence:
 ```
 
 Each migration is a separate file. Migrations are never combined after they have been run on staging.
+
+### 7.2 Phase 2 Migration Plan
+
+Phase 2 migrations extend the Phase 1 schema. All use `ADD COLUMN ... NULL` (no default, no NOT NULL) to avoid table rewrites on the live `Restaurant` table.
+
+```
+015_add_restaurant_coordinates      — Restaurant.latitude, .longitude, .geocodedAt, .geocodeConf
+                                      + partial index idx_restaurant_geocoded
+                                      Governed by: track-07-navigation-location.md §6
+```
+
+**Migration SQL (015_add_restaurant_coordinates):**
+
+```sql
+ALTER TABLE "Restaurant"
+  ADD COLUMN "latitude"    DOUBLE PRECISION,
+  ADD COLUMN "longitude"   DOUBLE PRECISION,
+  ADD COLUMN "geocodedAt"  TIMESTAMP(3),
+  ADD COLUMN "geocodeConf" VARCHAR(10);
+
+CREATE INDEX "idx_restaurant_geocoded"
+  ON "Restaurant" ("latitude", "longitude")
+  WHERE "latitude" IS NOT NULL AND "longitude" IS NOT NULL;
+```
+
+**Down migration:**
+
+```sql
+DROP INDEX IF EXISTS "idx_restaurant_geocoded";
+ALTER TABLE "Restaurant"
+  DROP COLUMN IF EXISTS "latitude",
+  DROP COLUMN IF EXISTS "longitude",
+  DROP COLUMN IF EXISTS "geocodedAt",
+  DROP COLUMN IF EXISTS "geocodeConf";
+```
+
+**Constraints enforced at application layer (not database layer):**
+- Latitude must be in the range `4.0 ≤ lat ≤ 13.9` (Nigeria bounding box)
+- Longitude must be in the range `2.7 ≤ lng ≤ 14.7` (Nigeria bounding box)
+- `geocodeConf` must be one of `'HIGH'`, `'MEDIUM'`, `'LOW'` — enforced by `IntelligenceUpdateSchema`
+- `geocodedAt` must be set whenever `latitude`/`longitude` are set — enforced by `geocoding.service.ts`
 
 ### 7.2 Migration Rules
 

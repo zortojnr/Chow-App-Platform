@@ -69,7 +69,7 @@ export default function IntroHero({ city }: IntroHeroProps) {
   }
 
   return (
-    <div className="relative min-h-screen bg-neutral-50">
+    <div className="relative bg-neutral-50">
       <AnimatePresence>
         {showIntro && (
           <motion.div
