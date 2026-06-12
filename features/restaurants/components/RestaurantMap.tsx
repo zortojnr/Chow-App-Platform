@@ -58,6 +58,8 @@ export function RestaurantMap({
         center: [longitude, latitude],
         zoom: DEFAULT_ZOOM,
         attributionControl: { compact: true },
+        scrollZoom: false,       // don't capture page scroll events
+        dragRotate: false,       // disable rotation — not needed for a location pin
       })
 
       // Restaurant marker
