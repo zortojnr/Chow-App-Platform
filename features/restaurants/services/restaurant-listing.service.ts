@@ -56,7 +56,7 @@ export type RestaurantProfileResponse = {
   name: string
   slug: string
   description: string | null
-  phone: string
+  phone: string | null
   address: string
   area: string | null
   city: string

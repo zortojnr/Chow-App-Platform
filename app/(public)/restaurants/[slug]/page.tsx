@@ -118,7 +118,7 @@ export default async function RestaurantProfilePage({ params }: Props) {
       addressRegion: restaurant.state,
       addressCountry: 'NG',
     },
-    telephone: restaurant.phone,
+    ...(restaurant.phone ? { telephone: restaurant.phone } : {}),
     ...(restaurant.website ? { url: restaurant.website } : {}),
     servesCuisine:
       restaurant.cuisineTypes.length > 0 ? restaurant.cuisineTypes : ['Nigerian'],

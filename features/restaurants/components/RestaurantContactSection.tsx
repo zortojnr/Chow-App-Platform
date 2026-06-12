@@ -44,7 +44,7 @@ function mapsUrl(address: string, city: string): string {
 type ContactSectionShow = 'location' | 'contact' | 'all'
 
 interface RestaurantContactSectionProps {
-  phone:      string
+  phone:      string | null
   address:    string
   area:       string | null
   city:       string
@@ -119,7 +119,7 @@ export function RestaurantContactSection({
       )}
 
       {/* ── Phone ───────────────────────────────────────── */}
-      {showContact && (
+      {showContact && phone && (
         <div className="flex items-center gap-3">
           <Phone
             size={16}
