@@ -10,3 +10,5 @@ export { PhotoLightbox }                                                from './
 export { RestaurantContactSection, RestaurantContactSectionSkeleton }   from './RestaurantContactSection'
 export { RestaurantHero, RestaurantHeroSkeleton }                       from './RestaurantHero'
 export { RestaurantMap, MapUnavailable }                                 from './RestaurantMap'
+export { TopPicksSection }                                               from './TopPicksSection'
+export { NearYouSection }                                                from './NearYouSection'

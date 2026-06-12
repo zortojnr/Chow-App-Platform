@@ -22,6 +22,8 @@ import { CategoryChips } from 'features/search/components/CategoryChips'
 import { PopularDishesSection } from 'features/search/components/PopularDishesSection'
 import { TrendingDishesSection } from 'features/search/components/TrendingDishesSection'
 import { JustVerifiedSection } from 'features/search/components/JustVerifiedSection'
+import { TopPicksSection } from 'features/restaurants/components/TopPicksSection'
+import { NearYouSection } from 'features/restaurants/components/NearYouSection'
 import { DiscoveryService } from 'features/search/services/discovery.service'
 import Link from 'next/link'
 
@@ -101,22 +103,32 @@ export default async function HomePage() {
             <CategoryChips />
           </div>
 
-          {/* ── Section 3: Popular Dishes ──────────────────── */}
+          {/* ── Section 3: Top Picks ───────────────────────── */}
+          <div className="md:px-6 lg:px-8">
+            <TopPicksSection city={city} limit={6} />
+          </div>
+
+          {/* ── Section 4: Near You (client — GPS) ────────── */}
+          <div className="md:px-6 lg:px-8">
+            <NearYouSection limit={6} />
+          </div>
+
+          {/* ── Section 5: Popular Dishes ──────────────────── */}
           <div className="md:px-6 lg:px-8">
             <PopularDishesSection city={city} />
           </div>
 
-          {/* ── Section 4: Trending This Week ──────────────── */}
+          {/* ── Section 6: Trending This Week ──────────────── */}
           <div className="md:px-6 lg:px-8">
             <TrendingDishesSection city={city} excludeDishIds={popularDishIds} />
           </div>
 
-          {/* ── Section 5: Just Verified ───────────────────── */}
+          {/* ── Section 7: Just Verified ───────────────────── */}
           <div className="md:px-6 lg:px-8">
             <JustVerifiedSection city={city} />
           </div>
 
-          {/* ── Section 6: Platform CTA ────────────────────── */}
+          {/* ── Section 8: Platform CTA ────────────────────── */}
           <div className="text-center pb-4 px-4 md:px-0">
             <Link
               href="/submit"

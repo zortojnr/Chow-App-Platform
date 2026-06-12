@@ -132,6 +132,9 @@ model Restaurant {
   geocodedAt  DateTime?
   geocodeConf String?   @db.VarChar(10)
 
+  // Data provenance — 'internal_dataset' for bulk-imported records, null for submissions
+  source      String?   @db.VarChar(50)
+
   // Contact
   phone   String  @db.VarChar(20)
   email   String? @db.VarChar(150)
