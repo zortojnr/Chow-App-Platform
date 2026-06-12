@@ -4,6 +4,10 @@ import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { HeroVideoSection } from './HeroVideoSection'
 import { TypewriterText } from './TypewriterText'
+import {
+  getShouldShowWelcomeIntro,
+  markWelcomeIntroSeen,
+} from '@/lib/welcome-intro'
 
 // Intro timeline constants (in seconds)
 const TYPEWRITER_START = 0.3
@@ -18,7 +22,7 @@ interface IntroHeroProps {
 
 export default function IntroHero({ city }: IntroHeroProps) {
   const reduceMotion = useReducedMotion()
-  const [showIntro, setShowIntro] = useState(!reduceMotion)
+  const [showIntro, setShowIntro] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
   useEffect(() => {
@@ -26,6 +30,10 @@ export default function IntroHero({ city }: IntroHeroProps) {
       setShowIntro(false)
       return
     }
+
+    const shouldShowIntro = getShouldShowWelcomeIntro()
+    setShowIntro(shouldShowIntro)
+    if (!shouldShowIntro) return
 
     let transitionTimer: ReturnType<typeof setTimeout>
     let exitTimer: ReturnType<typeof setTimeout>
@@ -36,6 +44,7 @@ export default function IntroHero({ city }: IntroHeroProps) {
       // Remove intro overlay after transition animation completes
       exitTimer = setTimeout(() => {
         setShowIntro(false)
+        markWelcomeIntroSeen()
       }, TRANSITION_DURATION * 1000)
     }, TRANSITION_START * 1000)
 
@@ -67,7 +76,12 @@ export default function IntroHero({ city }: IntroHeroProps) {
             key="intro-overlay"
             initial="initial"
             animate={isTransitioning ? 'transition' : 'initial'}
-            exit={{ opacity: 0, transition: { duration: 0.3, ease: 'easeOut' } }}
+            exit={{
+              opacity: 0,
+              y: -28,
+              scale: 0.92,
+              transition: { duration: 0.3, ease: 'easeOut' },
+            }}
             variants={introContainerVariants}
             transition={{ duration: TRANSITION_DURATION, ease: 'easeInOut' }}
             className="fixed inset-0 z-50 w-full h-full flex items-center justify-center bg-black origin-top"

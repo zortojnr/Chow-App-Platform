@@ -486,7 +486,7 @@ function Step2({
               className={cn(
                 'w-full h-11 pl-9 pr-10 rounded-xl border border-neutral-200 text-sm text-neutral-900 placeholder-neutral-400',
                 'bg-neutral-0 transition-colors duration-fast',
-                'focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 hover:border-neutral-300',
+                'focus:outline-none',
               )}
               autoComplete="off"
               aria-autocomplete="list"

@@ -27,6 +27,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { markWelcomeIntroLogout } from '@/lib/welcome-intro'
 import { DarkModeToggle } from './DarkModeToggle'
 import { QueueBadge } from './QueueBadge'
 import type { Session } from 'next-auth'
@@ -176,7 +177,10 @@ export function AdminSidebar({ session }: AdminSidebarProps) {
           {/* Logout */}
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: '/login' })}
+            onClick={() => {
+              markWelcomeIntroLogout()
+              signOut({ callbackUrl: '/login' })
+            }}
             className={cn(
               'inline-flex items-center gap-2 text-sm text-neutral-400',
               'hover:text-neutral-200 transition-colors duration-[100ms] ease-out',
