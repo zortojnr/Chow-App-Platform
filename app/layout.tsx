@@ -48,6 +48,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title:       'Chow Here',
   description: 'Trusted dish-first Nigerian food discovery platform.',
+  icons: {
+    icon: '/asset-2.webp',
+  },
 }
 
 // design-system-v1.md §9.7 — viewport-fit=cover for notch/home indicator handling
