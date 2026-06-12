@@ -136,7 +136,7 @@ model Restaurant {
   source      String?   @db.VarChar(50)
 
   // Contact
-  phone   String  @db.VarChar(20)
+  phone   String? @db.VarChar(20)
   email   String? @db.VarChar(150)
   website String? @db.VarChar(300)
 

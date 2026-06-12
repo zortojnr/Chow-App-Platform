@@ -390,4 +390,62 @@ export const DISHES: DishSeedEntry[] = [
     category: DishCategory.BREAKFAST,
     description: "Soft agege bread served with sweetened Nigerian brown or black-eyed beans.",
   },
+
+  // ─── INTERNATIONAL / CONTINENTAL (8) ────────────────────────
+  {
+    canonicalName: "Pasta",
+    slug: "pasta",
+    aliases: ["spaghetti", "penne", "fettuccine", "pasta dish"],
+    category: DishCategory.RICE_DISHES,
+    description: "Italian-style pasta in various forms — spaghetti, penne, fettuccine — with sauce.",
+  },
+  {
+    canonicalName: "Pizza",
+    slug: "pizza",
+    aliases: ["wood-fired pizza", "flatbread pizza", "thin-crust pizza"],
+    category: DishCategory.STREET_FOOD,
+    description: "Baked flatbread topped with tomato sauce, cheese, and various toppings.",
+  },
+  {
+    canonicalName: "Burger",
+    slug: "burger",
+    aliases: ["hamburger", "beef burger", "cheeseburger", "gourmet burger"],
+    category: DishCategory.STREET_FOOD,
+    description: "Grilled beef or chicken patty served in a bun with toppings.",
+  },
+  {
+    canonicalName: "Crepes",
+    slug: "crepes",
+    aliases: ["crêpes", "french crepes", "sweet crepes", "savoury crepes"],
+    category: DishCategory.BREAKFAST,
+    description: "Thin French-style pancakes served sweet or savoury.",
+  },
+  {
+    canonicalName: "Calamari",
+    slug: "calamari",
+    aliases: ["fried calamari", "squid rings", "calamares", "crispy calamari"],
+    category: DishCategory.PROTEIN,
+    description: "Battered and fried squid rings, typically served with dipping sauce.",
+  },
+  {
+    canonicalName: "Breakfast Platter",
+    slug: "breakfast-platter",
+    aliases: ["full breakfast", "english breakfast", "continental breakfast", "big breakfast"],
+    category: DishCategory.BREAKFAST,
+    description: "A full plate of breakfast items — eggs, sausage, toast, beans, and sides.",
+  },
+  {
+    canonicalName: "Club Sandwich",
+    slug: "club-sandwich",
+    aliases: ["triple decker sandwich", "clubhouse sandwich", "toasted club"],
+    category: DishCategory.SNACKS,
+    description: "Triple-decker toasted sandwich with chicken, bacon, lettuce, tomato, and mayo.",
+  },
+  {
+    canonicalName: "Beef Stir Fry",
+    slug: "beef-stir-fry",
+    aliases: ["stir fried beef", "sizzling beef", "beef and vegetables"],
+    category: DishCategory.PROTEIN,
+    description: "Tender beef stir-fried with vegetables in a savory sauce.",
+  },
 ];
