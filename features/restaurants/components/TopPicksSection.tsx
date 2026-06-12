@@ -7,7 +7,23 @@
 import Link from 'next/link'
 import { RestaurantListingService } from '../services/restaurant-listing.service'
 import { TrustBadge } from './TrustBadge'
-import { UtensilsCrossed } from 'lucide-react'
+import { MapPin } from 'lucide-react'
+
+const PRICE: Record<string, string> = { BUDGET: '₦', MID: '₦₦', UPSCALE: '₦₦₦' }
+
+const GRADIENTS = [
+  'from-amber-400 to-orange-500',
+  'from-green-400 to-emerald-600',
+  'from-rose-400 to-pink-600',
+  'from-sky-400 to-blue-600',
+  'from-violet-400 to-purple-600',
+  'from-teal-400 to-cyan-600',
+  'from-yellow-400 to-amber-500',
+  'from-indigo-400 to-blue-500',
+]
+function gradientFor(name: string) {
+  return GRADIENTS[name.charCodeAt(0) % GRADIENTS.length]
+}
 
 interface TopPicksSectionProps {
   city?: string
@@ -60,8 +76,10 @@ export async function TopPicksSection({ city, limit = 6 }: TopPicksSectionProps)
                   decoding="async"
                 />
               ) : (
-                <div className="flex items-center justify-center h-full" aria-hidden="true">
-                  <UtensilsCrossed size={28} strokeWidth={1.5} className="text-neutral-300" />
+                <div className={`flex items-center justify-center h-full bg-gradient-to-br ${gradientFor(r.name)}`} aria-hidden="true">
+                  <span className="text-4xl font-display font-bold text-white/90">
+                    {r.name[0]?.toUpperCase()}
+                  </span>
                 </div>
               )}
               <div className="absolute bottom-2 left-2">
@@ -74,11 +92,17 @@ export async function TopPicksSection({ city, limit = 6 }: TopPicksSectionProps)
               <p className="font-display font-semibold text-neutral-900 text-base leading-snug line-clamp-1">
                 {r.name}
               </p>
-              <p className="text-xs text-neutral-500 mt-0.5 line-clamp-1">
-                {r.area ? `${r.area} · ` : ''}{r.city}
-              </p>
+              <div className="flex items-center justify-between mt-1">
+                <span className="flex items-center gap-1 text-xs text-neutral-500 truncate">
+                  <MapPin size={11} className="shrink-0 text-neutral-400" aria-hidden="true" />
+                  {r.area ?? r.city}
+                </span>
+                <span className="shrink-0 text-xs font-semibold text-amber-600 ml-2">
+                  {PRICE[r.priceRange] ?? '₦₦'}
+                </span>
+              </div>
               {r.cuisineTypes.length > 0 && (
-                <p className="text-xs text-amber-600 mt-1 line-clamp-1">
+                <p className="text-xs text-neutral-500 mt-1 line-clamp-1">
                   {r.cuisineTypes.slice(0, 2).join(' · ')}
                 </p>
               )}

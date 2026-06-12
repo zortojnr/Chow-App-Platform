@@ -284,6 +284,7 @@ export const RestaurantListingService = {
    */
   async getRestaurantIndex(params: {
     city?: string
+    area?: string
     page?: number
     limit?: number
     priceRange?: PriceRange
@@ -298,6 +299,9 @@ export const RestaurantListingService = {
       deletedAt: null,
       ...(params.city
         ? { city: { equals: params.city, mode: 'insensitive' as const } }
+        : {}),
+      ...(params.area
+        ? { area: { equals: params.area, mode: 'insensitive' as const } }
         : {}),
       ...(params.priceRange ? { priceRange: params.priceRange } : {}),
       ...(params.cuisineType

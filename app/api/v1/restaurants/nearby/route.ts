@@ -43,6 +43,7 @@ type NearbyRow = {
   area: string | null
   cuisineTypes: string[]
   thumbnailUrl: string | null
+  priceRange: string
   latitude: number
   longitude: number
   distanceKm: number
@@ -70,6 +71,7 @@ export async function GET(request: NextRequest) {
         r.area,
         r."cuisineTypes",
         r."thumbnailUrl",
+        r."priceRange",
         r.latitude,
         r.longitude,
         (
@@ -96,14 +98,15 @@ export async function GET(request: NextRequest) {
     `)
 
     const results = rows.map((r) => ({
-      id:               r.id,
-      name:             r.name,
-      slug:             r.slug,
-      city:             r.city,
-      area:             r.area,
-      cuisineTypes:     r.cuisineTypes,
-      thumbnailUrl:     r.thumbnailUrl,
-      distanceKm:       Number(r.distanceKm),
+      id:                r.id,
+      name:              r.name,
+      slug:              r.slug,
+      city:              r.city,
+      area:              r.area,
+      cuisineTypes:      r.cuisineTypes,
+      thumbnailUrl:      r.thumbnailUrl,
+      priceRange:        r.priceRange,
+      distanceKm:        Number(r.distanceKm),
       formattedDistance: formatDistance(Number(r.distanceKm)),
     }))
 
