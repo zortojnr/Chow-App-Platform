@@ -55,13 +55,13 @@ function ProgressBar({ step }: { step: Step }) {
   return (
     <div className="sticky top-0 lg:top-[60px] z-30 bg-neutral-0 border-b border-neutral-100">
       <div className="max-w-2xl mx-auto px-4 py-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2 px-2">
           {STEPS.map(({ n, label }, i) => {
             const done    = step > n
             const active  = step === n
             const future  = step < n
             return (
-              <div key={n} className="flex items-center flex-1 min-w-0">
+              <div key={n} className="flex items-center gap-2 min-w-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <div
                     className={cn(
@@ -87,7 +87,7 @@ function ProgressBar({ step }: { step: Step }) {
                 {i < STEPS.length - 1 && (
                   <div
                     className={cn(
-                      'flex-1 h-px mx-3 transition-colors duration-fast',
+                      'h-px mx-2 transition-colors duration-fast min-w-[1.5rem] flex-1',
                       step > n ? 'bg-amber-400' : 'bg-neutral-200',
                     )}
                   />
