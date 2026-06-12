@@ -14,11 +14,15 @@ import { DishCategory } from '@prisma/client'
 // ─── GET /api/v1/search ───────────────────────────────────────
 
 export const SearchQuerySchema = z.object({
-  q:    z.string().trim().min(1, 'Query is required').max(200),
-  type: z.enum(['dishes', 'restaurants', 'all']).default('all'),
-  city: z.string().trim().min(1).max(100).optional(),
-  area: z.string().trim().min(1).max(100).optional(),
-  page: z.coerce.number().int().min(1).default(1),
+  q:       z.string().trim().min(1, 'Query is required').max(200),
+  type:    z.enum(['dishes', 'restaurants', 'all']).default('all'),
+  city:    z.string().trim().min(1).max(100).optional(),
+  area:    z.string().trim().min(1).max(100).optional(),
+  page:    z.coerce.number().int().min(1).default(1),
+  // Track 7: client-side GPS coordinates — validated range only, never persisted
+  userLat: z.coerce.number().min(-90).max(90).optional(),
+  userLng: z.coerce.number().min(-180).max(180).optional(),
+  sort:    z.enum(['relevance', 'nearest']).default('relevance'),
 })
 export type SearchQueryInput = z.infer<typeof SearchQuerySchema>
 

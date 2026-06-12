@@ -41,6 +41,7 @@
     "framer-motion": "^12.40.0",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",
+    "maplibre-gl": "^5.24.0",
     "next": "^16.2.9",
     "next-auth": "^4.24.14",
     "react": "19.1.0",

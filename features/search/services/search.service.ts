@@ -29,6 +29,10 @@ export type SearchParams = {
   city?: string
   area?: string    // Phase 1: parsed but not applied (SearchLog.area does not exist yet)
   page?: number
+  // Track 7: GPS coordinates — never persisted, used for proximity ranking only
+  userLat?: number
+  userLng?: number
+  sort?: 'relevance' | 'nearest'
 }
 
 export type SearchResponse = {
@@ -61,6 +65,9 @@ export const SearchService = {
       city,
       area,     // Phase 1: accepted but not forwarded to services
       page = 1,
+      userLat,
+      userLng,
+      sort,
     } = params
 
     const trimmed = query.trim().slice(0, 200)
@@ -77,7 +84,7 @@ export const SearchService = {
       return searchRestaurantsOnly(trimmed, city, page)
     }
 
-    return searchAll(trimmed, city, page)
+    return searchAll(trimmed, city, page, userLat, userLng, sort)
   },
 }
 
@@ -111,6 +118,9 @@ async function searchAll(
   query: string,
   city: string | undefined,
   page: number,
+  userLat?: number,
+  userLng?: number,
+  sort?: 'relevance' | 'nearest',
 ): Promise<SearchResponse> {
   // Run dish FTS and restaurant FTS in parallel
   const [dishes, restaurantsByName] = await Promise.all([
@@ -124,13 +134,24 @@ async function searchAll(
     const { results } = await DishRestaurantService.getDishRestaurants(
       dishes[0].dishId,
       query,
-      { city, page },
+      { city, page, userLat, userLng },
     )
     restaurantsByDish = results
   }
 
   // Prefer dish-context restaurants when a dish matched; fall back to name search
-  const restaurants = restaurantsByDish.length > 0 ? restaurantsByDish : restaurantsByName
+  let restaurants: DishRestaurantResult[] | RestaurantSearchResult[] =
+    restaurantsByDish.length > 0 ? restaurantsByDish : restaurantsByName
+
+  // Client-requested nearest sort: re-order dish restaurants by distance
+  if (sort === 'nearest' && restaurantsByDish.length > 0) {
+    restaurants = [...restaurantsByDish].sort((a, b) => {
+      if (a.distanceKm === null && b.distanceKm === null) return 0
+      if (a.distanceKm === null) return 1
+      if (b.distanceKm === null) return -1
+      return a.distanceKm - b.distanceKm
+    })
+  }
 
   return buildResponse({
     query,

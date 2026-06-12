@@ -75,6 +75,9 @@ export type RestaurantProfileResponse = {
   dishes: DishSummary[]
   submittedAt: string            // ISO-8601 — Restaurant.createdAt
   approvedAt: string             // ISO-8601 — most recent APPROVED VerificationEvent
+  // Track 7: coordinates for map display (null until admin geocodes the restaurant)
+  latitude: number | null
+  longitude: number | null
 }
 
 export type RestaurantCardResponse = {
@@ -137,6 +140,8 @@ export const RestaurantListingService = {
         website: true,
         email: true,
         confidenceScore: true,
+        latitude: true,
+        longitude: true,
         createdAt: true,
         photos: {
           where: { isVerified: true },
@@ -206,6 +211,8 @@ export const RestaurantListingService = {
       })),
       submittedAt: restaurant.createdAt.toISOString(),
       approvedAt: approvedAt.toISOString(),
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
     }
   },
 

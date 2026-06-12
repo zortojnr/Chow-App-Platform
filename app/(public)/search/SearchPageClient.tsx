@@ -15,6 +15,8 @@ import { SearchResults } from 'features/search/components/SearchResults'
 import { CategoryChips } from 'features/search/components/CategoryChips'
 import { useSearch } from 'features/search/hooks/useSearch'
 import { useSearchStore } from 'features/search/stores/search.store'
+import { LocationPrompt } from 'features/location/components/LocationPrompt'
+import { useLocationStore } from 'features/location/stores/location.store'
 import { cn } from '@/lib/utils'
 
 interface SearchPageClientProps {
@@ -32,6 +34,7 @@ export function SearchPageClient({
 }: SearchPageClientProps) {
   const router = useRouter()
   const { cityContext, setCityContext } = useSearchStore()
+  const { latitude: userLat, longitude: userLng } = useLocationStore()
 
   // Sync city from URL into store on first load
   useEffect(() => {
@@ -49,6 +52,8 @@ export function SearchPageClient({
     type:    initialType,
     page:    initialPage,
     enabled: initialQuery.trim().length >= 2,
+    userLat: userLat ?? undefined,
+    userLng: userLng ?? undefined,
   })
 
   const buildUrl = (page: number) => {
@@ -67,17 +72,20 @@ export function SearchPageClient({
     <div className="min-h-screen bg-neutral-50">
 
       {/* ── Sticky search header ────────────────────────── */}
-      <div className="sticky top-0 z-30 bg-neutral-0 border-b border-neutral-200 px-4 py-3 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <SearchBar
-            defaultValue={initialQuery}
-            onSearch={(q) => {
-              const sp = new URLSearchParams({ q })
-              if (activeCity) sp.set('city', activeCity)
-              router.push(`/search?${sp}`)
-            }}
-          />
+      <div className="sticky top-0 z-30 bg-neutral-0 border-b border-neutral-200">
+        <div className="px-4 py-3 lg:px-8">
+          <div className="max-w-2xl mx-auto">
+            <SearchBar
+              defaultValue={initialQuery}
+              onSearch={(q) => {
+                const sp = new URLSearchParams({ q })
+                if (activeCity) sp.set('city', activeCity)
+                router.push(`/search?${sp}`)
+              }}
+            />
+          </div>
         </div>
+        <LocationPrompt />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">

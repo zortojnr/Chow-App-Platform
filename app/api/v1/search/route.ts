@@ -39,13 +39,14 @@ export async function GET(request: NextRequest) {
     const parsed = SearchQuerySchema.safeParse(Object.fromEntries(searchParams))
     if (!parsed.success) return validationErrorResponse(parsed.error)
 
-    const { q, type, city, area, page } = parsed.data
+    const { q, type, city, area, page, userLat, userLng, sort } = parsed.data
 
     // JWT validation — fast (no DB call). Provides userId for authenticated searches.
     const session = await getServerSession(authOptions)
     const userId  = session?.user?.id ?? undefined
 
-    const result = await SearchService.search({ query: q, type, city, area, page })
+    // userLat/userLng are NEVER logged or persisted — proximity ranking only
+    const result = await SearchService.search({ query: q, type, city, area, page, userLat, userLng, sort })
 
     // Fire-and-forget — never awaited
     // userId present → also writes UserSearchHistory (§8.1)

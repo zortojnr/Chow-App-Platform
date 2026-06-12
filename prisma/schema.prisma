@@ -121,11 +121,16 @@ model Restaurant {
   description String? @db.VarChar(500)
 
   // Location
-  // Note: latitude/longitude not in Phase 1. Will be added as nullable migration in Phase 2.
   address String  @db.VarChar(300)
   city    String  @db.VarChar(100)
   state   String  @db.VarChar(100)
   area    String? @db.VarChar(100)
+
+  // Coordinates — admin-geocoded only, never auto-generated (track-07)
+  latitude    Float?
+  longitude   Float?
+  geocodedAt  DateTime?
+  geocodeConf String?   @db.VarChar(10)
 
   // Contact
   phone   String  @db.VarChar(20)
