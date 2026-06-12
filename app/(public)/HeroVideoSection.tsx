@@ -53,12 +53,12 @@ export function HeroVideoSection({ city }: HeroVideoSectionProps) {
             transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
             className="text-center mb-6"
           >
-            <div className="mx-auto mb-4 block sm:hidden w-20 h-24">
+            <div className="mx-auto mb-4 w-24 h-28 sm:w-28 sm:h-36">
               <Image
                 src="/asset-2.webp"
                 alt="Chow Here logo"
-                width={96}
-                height={132}
+                width={112}
+                height={144}
                 className="w-full h-full object-contain"
                 priority
               />
