@@ -172,6 +172,9 @@
 
   html {
     text-size-adjust: 100%;
+    background-color: #FAFAF8;  /* neutral-50 — matches body; prevents white flash on overscroll */
+    overscroll-behavior: none;  /* no rubber-band drag on iOS/Android */
+    overflow-x: hidden;         /* no horizontal bleed causing white side strips */
   }
 
   body {
@@ -182,6 +185,8 @@
     background-color: #FAFAF8;  /* neutral-50 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;  /* belt-and-suspenders for browsers that scope to body */
+    overflow-x: hidden;
   }
 
   /* Remove default focus outline — replaced by shadow-brand / shadow-trust
