@@ -2,18 +2,17 @@
 
 // RestaurantMap — Track 7
 //
-// MapLibre GL map showing a restaurant's pinned location.
-// Dynamically imported (no SSR) since MapLibre GL requires the browser's WebGL.
+// Static (non-interactive) MapLibre GL map showing a restaurant's pinned location.
+// interactive: false is intentional — it prevents the map from capturing any
+// scroll, touch, or wheel events, which would block page scrolling.
 //
-// - Shows amber pin marker at restaurant coordinates
-// - Shows green dot at user's live position (when GPS granted)
-// - Uses Stadia Maps Alidade Smooth tile set (no per-request billing)
-// - Renders a location-unavailable placeholder when restaurant has no coordinates
+// A "Get Directions" link opens Google Maps for navigation.
+// User position dot is still shown (read from location store, drawn as a marker).
 //
 // Governed by: track-07-navigation-location.md §9
 
 import { useEffect, useRef } from 'react'
-import { MapPin } from 'lucide-react'
+import { Navigation, MapPin } from 'lucide-react'
 import { getMapStyle, MARKER_COLOR, USER_MARKER_COLOR, DEFAULT_ZOOM } from '@/lib/map-style'
 import { useLocationStore } from 'features/location/stores/location.store'
 
@@ -21,6 +20,7 @@ interface RestaurantMapProps {
   latitude: number
   longitude: number
   restaurantName: string
+  address?: string
   className?: string
 }
 
@@ -28,13 +28,16 @@ export function RestaurantMap({
   latitude,
   longitude,
   restaurantName,
+  address,
   className,
 }: RestaurantMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<import('maplibre-gl').Map | null>(null)
+  const mapRef       = useRef<import('maplibre-gl').Map | null>(null)
   const userMarkerRef = useRef<import('maplibre-gl').Marker | null>(null)
 
   const { latitude: userLat, longitude: userLng, permission } = useLocationStore()
+
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`
 
   // Initialise map once
   useEffect(() => {
@@ -43,11 +46,11 @@ export function RestaurantMap({
     let map: import('maplibre-gl').Map
 
     import('maplibre-gl').then((ml) => {
-      // MapLibre CSS — injected once
+      // Inject MapLibre CSS once
       if (!document.getElementById('maplibre-css')) {
         const link = document.createElement('link')
-        link.id = 'maplibre-css'
-        link.rel = 'stylesheet'
+        link.id   = 'maplibre-css'
+        link.rel  = 'stylesheet'
         link.href = 'https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css'
         document.head.appendChild(link)
       }
@@ -57,12 +60,11 @@ export function RestaurantMap({
         style: getMapStyle(),
         center: [longitude, latitude],
         zoom: DEFAULT_ZOOM,
+        interactive: false,          // no scroll/touch capture — page scrolls freely
         attributionControl: { compact: true },
-        scrollZoom: false,       // don't capture page scroll events
-        dragRotate: false,       // disable rotation — not needed for a location pin
       })
 
-      // Restaurant marker
+      // Restaurant pin marker
       const el = document.createElement('div')
       el.style.cssText = `
         width: 32px; height: 32px;
@@ -74,7 +76,6 @@ export function RestaurantMap({
       `
       new ml.Marker({ element: el })
         .setLngLat([longitude, latitude])
-        .setPopup(new ml.Popup({ offset: 25 }).setText(restaurantName))
         .addTo(map)
 
       mapRef.current = map
@@ -85,15 +86,14 @@ export function RestaurantMap({
       mapRef.current = null
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latitude, longitude, restaurantName])
+  }, [latitude, longitude])
 
-  // Update user position marker whenever GPS state changes
+  // Draw / update user position dot when GPS state changes
   useEffect(() => {
     const map = mapRef.current
     if (!map || permission !== 'granted' || userLat === null || userLng === null) return
 
     import('maplibre-gl').then((ml) => {
-      // Remove old marker
       userMarkerRef.current?.remove()
 
       const dot = document.createElement('div')
@@ -111,11 +111,29 @@ export function RestaurantMap({
   }, [userLat, userLng, permission])
 
   return (
-    <div ref={containerRef} className={className ?? 'w-full h-64 rounded-xl overflow-hidden'} />
+    <div className="rounded-xl overflow-hidden">
+      {/* Map canvas */}
+      <div
+        ref={containerRef}
+        className={className ?? 'w-full h-56'}
+        aria-label={`Map showing location of ${restaurantName}`}
+        role="img"
+      />
+      {/* Get Directions — below the map */}
+      <a
+        href={directionsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 px-4 py-3 bg-neutral-100 hover:bg-neutral-200 transition-colors duration-fast text-sm font-medium text-neutral-700 focus-visible:outline-none focus-visible:shadow-brand"
+      >
+        <Navigation size={15} className="shrink-0 text-amber-500" aria-hidden="true" />
+        Get Directions
+      </a>
+    </div>
   )
 }
 
-// Shown on the restaurant profile when the restaurant has no coordinates yet
+// Shown when the restaurant has no coordinates yet
 export function MapUnavailable({ className }: { className?: string }) {
   return (
     <div
