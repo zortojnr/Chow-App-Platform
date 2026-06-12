@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Maps Tailwind's dark: variant to the admin data-theme="dark" attribute */
+@custom-variant dark (&:where([data-theme="dark"] *));
+
 /* ─────────────────────────────────────────────────────────────
    DESIGN SYSTEM TOKENS
    Source: chow-here-design-system-v1.md Appendix C

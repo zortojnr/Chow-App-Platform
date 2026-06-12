@@ -154,7 +154,7 @@ export function DishIntelligenceCard({ dish, restaurantId, queryKey }: Props) {
       className={cn(
         'px-4 py-3 min-h-[56px]',
         'border-b border-[var(--admin-border)] last:border-0',
-        isVerified ? 'bg-green-50 [data-theme=dark_&]:bg-green-900/10' : 'bg-[var(--admin-bg-surface)]',
+        isVerified ? 'bg-green-50 dark:bg-green-900/10' : 'bg-[var(--admin-bg-surface)]',
         'transition-colors duration-[200ms] ease-out',
       )}
     >

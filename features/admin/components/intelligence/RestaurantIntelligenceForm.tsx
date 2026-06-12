@@ -84,8 +84,8 @@ const inputBase = cn(
   'focus:border-amber-500 focus:outline-none',
   'focus:[box-shadow:0_0_0_3px_rgba(212,116,10,0.24)]',
   'transition-[border-color,box-shadow] duration-[150ms] ease-out',
-  '[data-theme=dark_&]:bg-[var(--admin-bg-surface)] [data-theme=dark_&]:text-[var(--admin-text-primary)]',
-  '[data-theme=dark_&]:border-[var(--admin-border)]',
+  'dark:bg-[var(--admin-bg-surface)] dark:text-[var(--admin-text-primary)]',
+  'dark:border-[var(--admin-border)]',
 )
 
 const inputError = cn(

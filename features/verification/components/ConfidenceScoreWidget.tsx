@@ -82,9 +82,9 @@ export function ConfidenceScoreWidget({ score, breakdown, onOverride }: Props) {
 
       {/* Override banner — shown only when score was manually overridden */}
       {isOverride && (
-        <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border-b border-amber-200 [data-theme=dark_&]:bg-amber-900/20 [data-theme=dark_&]:border-amber-800/40">
+        <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border-b border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/40">
           <AlertTriangle size={14} strokeWidth={1.5} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
-          <p className="text-xs text-amber-800 [data-theme=dark_&]:text-amber-300">
+          <p className="text-xs text-amber-800 dark:text-amber-300">
             <span className="font-semibold">Score manually overridden</span> on{' '}
             {new Date((breakdown as OverrideBreakdown).overriddenAt).toLocaleDateString('en-GB', {
               day: 'numeric', month: 'short', year: 'numeric',
