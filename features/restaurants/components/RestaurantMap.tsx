@@ -60,8 +60,15 @@ export function RestaurantMap({
         style: getMapStyle(),
         center: [longitude, latitude],
         zoom: DEFAULT_ZOOM,
-        interactive: false,          // no scroll/touch capture — page scrolls freely
+        interactive: false,
         attributionControl: { compact: true },
+      })
+
+      // MapLibre CSS injects touch-action:none on the canvas even when interactive:false.
+      // Override it so the browser handles touch/scroll as normal page scrolling.
+      map.on('load', () => {
+        const canvas = map.getCanvas()
+        canvas.style.touchAction = 'pan-y'
       })
 
       // Restaurant pin marker

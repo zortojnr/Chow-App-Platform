@@ -185,8 +185,7 @@
     background-color: #FAFAF8;  /* neutral-50 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overscroll-behavior: none;  /* belt-and-suspenders for browsers that scope to body */
-    overflow-x: hidden;
+    overscroll-behavior: none;
   }
 
   /* Remove default focus outline — replaced by shadow-brand / shadow-trust
