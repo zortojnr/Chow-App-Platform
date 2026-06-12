@@ -422,8 +422,8 @@ function Step2({
     if (q.trim().length < 2) { setSugg([]); setShow(false); return }
     setSearching(true)
     try {
-      const res = await apiGet<{ suggestions: DishSuggestion[] }>(`/api/v1/search/suggestions?q=${encodeURIComponent(q)}`)
-      setSugg(res.suggestions ?? [])
+      const res = await apiGet<DishSuggestion[]>(`/api/v1/search/suggestions?q=${encodeURIComponent(q)}`)
+      setSugg(res ?? [])
       setShow(true)
     } catch {
       setSugg([])
