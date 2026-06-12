@@ -180,9 +180,8 @@ export function SearchBar({
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
       className={cn(
-        'w-full bg-transparent outline-none',
+        'w-full h-full bg-transparent appearance-none outline-none',
         'text-base text-neutral-900 placeholder:text-neutral-400',
-        'py-0',
       )}
     />
   )

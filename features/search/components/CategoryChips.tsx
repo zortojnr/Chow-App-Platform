@@ -29,12 +29,12 @@ export function CategoryChips({ activeSlug, className }: CategoryChipsProps) {
       aria-label="Browse by food category"
       className={cn('w-full', className)}
     >
-      <p className="text-center md:text-left text-xs font-medium text-neutral-500 uppercase tracking-[0.08em] mb-3 px-4 md:px-0">
+      <p className="text-center text-xs font-medium text-neutral-500 uppercase tracking-[0.08em] mb-3 px-4 md:px-0">
         What are you in the mood for?
       </p>
 
       {/* Horizontal scroll on mobile, flex-wrap on tablet+ */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-none px-4 md:px-0 md:flex-wrap scroll-snap-x-mandatory">
+      <div className="flex justify-center gap-2 overflow-x-auto scrollbar-none px-4 md:px-0 md:flex-wrap scroll-snap-x-mandatory">
         {CATEGORY_CHIPS.map((chip) => {
           const isActive = activeSlug === chip.slug
           return (
