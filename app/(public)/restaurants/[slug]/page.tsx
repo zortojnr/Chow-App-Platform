@@ -23,7 +23,6 @@
 // Governed by: restaurant-listing-track.md §7–§13, §17–§18
 
 import { cache } from 'react'
-import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { RestaurantListingService } from 'features/restaurants/services/restaurant-listing.service'
@@ -36,18 +35,7 @@ import {
   MapUnavailable,
 } from 'features/restaurants/components'
 import { Badge } from '@/components/ui/badge'
-
-// Dynamic import: MapLibre GL requires WebGL — must be client-only, no SSR
-const RestaurantMap = dynamic(
-  () => import('features/restaurants/components/RestaurantMap').then((m) => m.RestaurantMap),
-  { ssr: false, loading: () => <div className="w-full h-64 rounded-xl bg-neutral-100 animate-pulse" /> },
-)
-
-// Dynamic import: uses GPS watchPosition — client-only
-const RestaurantTrackingSection = dynamic(
-  () => import('./RestaurantTrackingSection').then((m) => m.RestaurantTrackingSection),
-  { ssr: false },
-)
+import { RestaurantMapSection } from './RestaurantMapSection'
 
 export const revalidate = 300
 
@@ -221,18 +209,11 @@ export default async function RestaurantProfilePage({ params }: Props) {
               {/* ── 3b. Map + Live Tracking (Track 7) ──── */}
               <section aria-label="Map and directions">
                 {restaurant.latitude !== null && restaurant.longitude !== null ? (
-                  <>
-                    <RestaurantMap
-                      latitude={restaurant.latitude}
-                      longitude={restaurant.longitude}
-                      restaurantName={restaurant.name}
-                    />
-                    <RestaurantTrackingSection
-                      restaurantName={restaurant.name}
-                      latitude={restaurant.latitude}
-                      longitude={restaurant.longitude}
-                    />
-                  </>
+                  <RestaurantMapSection
+                    restaurantName={restaurant.name}
+                    latitude={restaurant.latitude}
+                    longitude={restaurant.longitude}
+                  />
                 ) : (
                   <MapUnavailable />
                 )}
