@@ -1,16 +1,10 @@
 'use client'
 
-// NearYouSection — proximity-ranked restaurants using GPS store
-//
-// Client component: reads lat/lng from the location store (populated by
-// LocationPrompt on the search page or triggered inline here).
-// Fetches from GET /api/v1/restaurants/nearby when GPS is available.
-// Shows a LocationPrompt-style inline nudge when GPS is idle.
-
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Navigation, UtensilsCrossed } from 'lucide-react'
 import { useLocationStore } from 'features/location/stores/location.store'
+import { useUserLocation } from 'features/location/hooks/useUserLocation'
 import { formatDistance } from '@/lib/geo'
 
 type NearbyRestaurant = {
@@ -31,38 +25,74 @@ interface NearYouSectionProps {
 
 export function NearYouSection({ limit = 6 }: NearYouSectionProps) {
   const { permission, latitude, longitude } = useLocationStore()
+  const { requestLocation } = useUserLocation()
   const [restaurants, setRestaurants] = useState<NearbyRestaurant[]>([])
-  const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(false)
+  const [requesting, setRequesting] = useState(false)
+  const didRequest = useRef(false)
 
+  // Auto-request location on first mount
+  useEffect(() => {
+    if (permission === 'idle' && !didRequest.current) {
+      didRequest.current = true
+      setRequesting(true)
+      requestLocation()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Clear requesting spinner once the store resolves
+  useEffect(() => {
+    if (permission !== 'idle') setRequesting(false)
+  }, [permission])
+
+  // Fetch nearby restaurants once GPS is granted
   useEffect(() => {
     if (permission !== 'granted' || latitude === null || longitude === null) return
-
-    setLoading(true)
+    setFetching(true)
     fetch(`/api/v1/restaurants/nearby?lat=${latitude}&lng=${longitude}&limit=${limit}`)
       .then((r) => r.json())
-      .then((json) => {
-        if (json.success) setRestaurants(json.data.restaurants)
-      })
+      .then((json) => { if (json.success) setRestaurants(json.data.restaurants) })
       .catch(() => {})
-      .finally(() => setLoading(false))
+      .finally(() => setFetching(false))
   }, [permission, latitude, longitude, limit])
 
-  // GPS not yet asked — entry point is the button in the search bar
-  if (permission === 'idle') return null
-
-  // GPS denied or unavailable
-  if (permission === 'denied' || permission === 'unavailable') return null
-
-  // Loading
-  if (loading) {
+  // Waiting for the user to respond to the browser permission dialog
+  if (requesting || (permission === 'idle')) {
     return (
       <section aria-labelledby="near-you-heading" className="px-4 md:px-0">
-        <h2
-          id="near-you-heading"
-          className="font-display text-xl md:text-2xl font-semibold text-neutral-900 mb-4"
-        >
-          Near You
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2
+            id="near-you-heading"
+            className="font-display text-xl md:text-2xl font-semibold text-neutral-900"
+          >
+            Near You
+          </h2>
+        </div>
+        <div className="flex gap-4 overflow-x-auto scrollbar-none md:grid md:grid-cols-3 md:overflow-visible">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="shrink-0 w-56 md:w-auto rounded-xl bg-neutral-100 animate-pulse h-48" />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  // GPS denied or unavailable — hide the section entirely
+  if (permission === 'denied' || permission === 'unavailable') return null
+
+  // Fetching restaurant data
+  if (fetching) {
+    return (
+      <section aria-labelledby="near-you-heading" className="px-4 md:px-0">
+        <div className="flex items-center justify-between mb-4">
+          <h2
+            id="near-you-heading"
+            className="font-display text-xl md:text-2xl font-semibold text-neutral-900"
+          >
+            Near You
+          </h2>
+        </div>
         <div className="flex gap-4 overflow-x-auto scrollbar-none md:grid md:grid-cols-3 md:overflow-visible">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="shrink-0 w-56 md:w-auto rounded-xl bg-neutral-100 animate-pulse h-48" />
@@ -83,10 +113,12 @@ export function NearYouSection({ limit = 6 }: NearYouSectionProps) {
         >
           Near You
         </h2>
-        <span className="text-xs text-neutral-400 flex items-center gap-1">
-          <Navigation size={11} aria-hidden="true" />
-          Within 20 km
-        </span>
+        <Link
+          href="/restaurants"
+          className="text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors duration-fast focus-visible:outline-none focus-visible:shadow-brand"
+        >
+          See all
+        </Link>
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none px-4 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
