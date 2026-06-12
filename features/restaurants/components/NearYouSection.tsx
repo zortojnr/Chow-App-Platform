@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Navigation, MapPin } from 'lucide-react'
 import { useLocationStore } from 'features/location/stores/location.store'
@@ -129,17 +129,6 @@ export function NearYouSection({ limit = 6 }: NearYouSectionProps) {
   const [fetching,   setFetching]   = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [selectedArea, setSelectedArea] = useState<string | null>(null)
-  const didRequest = useRef(false)
-
-  // Auto-request GPS on first mount
-  useEffect(() => {
-    if (permission === 'idle' && !didRequest.current) {
-      didRequest.current = true
-      setRequesting(true)
-      requestLocation()
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Clear requesting spinner once the store resolves
   useEffect(() => {
@@ -233,8 +222,35 @@ export function NearYouSection({ limit = 6 }: NearYouSectionProps) {
     )
   }
 
-  // ── Waiting for GPS dialog ─────────────────────────────────
-  if (requesting || permission === 'idle') {
+  // ── Idle: show the location CTA button ────────────────────
+  if (permission === 'idle') {
+    return (
+      <section aria-labelledby="near-you-heading" className="px-4 md:px-0">
+        <h2 id="near-you-heading" className="font-display text-xl md:text-2xl font-semibold text-neutral-900 mb-4">
+          Near You
+        </h2>
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-6 py-8 flex flex-col items-center text-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center" aria-hidden="true">
+            <Navigation size={22} className="text-amber-600" />
+          </div>
+          <div>
+            <p className="font-display font-semibold text-neutral-800 text-base">Find restaurants near you</p>
+            <p className="text-sm text-neutral-500 mt-0.5">Allow location access to see what&apos;s close by</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setRequesting(true); requestLocation() }}
+            className="px-5 py-2.5 rounded-full bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 active:bg-amber-700 transition-colors duration-fast focus-visible:outline-none focus-visible:shadow-brand"
+          >
+            Use my location
+          </button>
+        </div>
+      </section>
+    )
+  }
+
+  // ── Waiting for browser permission dialog ──────────────────
+  if (requesting) {
     return (
       <section aria-labelledby="near-you-heading" className="px-4 md:px-0">
         <h2 id="near-you-heading" className="font-display text-xl md:text-2xl font-semibold text-neutral-900 mb-4">
