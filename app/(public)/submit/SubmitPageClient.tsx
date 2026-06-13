@@ -485,8 +485,7 @@ function Step2({
               placeholder="e.g. Jollof Rice, Egusi Soup..."
               className={cn(
                 'w-full h-11 pl-9 pr-10 rounded-xl border border-neutral-200 text-sm text-neutral-900 placeholder-neutral-400',
-                'bg-neutral-0 transition-colors duration-fast',
-                'focus:outline-none',
+                'bg-neutral-0 transition-colors duration-fast outline-none',
               )}
               autoComplete="off"
               aria-autocomplete="list"

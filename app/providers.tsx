@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { SessionProvider } from 'next-auth/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
+import { ScrollRestoration } from '@/components/ScrollRestoration'
 import type { Session } from 'next-auth'
 
 type ProvidersProps = {
@@ -43,6 +44,7 @@ export function Providers({ children, session }: ProvidersProps) {
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
+        <ScrollRestoration />
         {children}
         {/* Toaster: bottom-right desktop, bottom-centre mobile. design-system-v1.md §10.8 */}
         <Toaster />

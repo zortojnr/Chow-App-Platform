@@ -32,7 +32,6 @@ import {
   DishCard,
   PhotoGallery,
   RestaurantContactSection,
-  MapUnavailable,
 } from 'features/restaurants/components'
 import { Badge } from '@/components/ui/badge'
 import { RestaurantMapSection } from './RestaurantMapSection'
@@ -208,15 +207,13 @@ export default async function RestaurantProfilePage({ params }: Props) {
 
               {/* ── 3b. Map + Live Tracking (Track 7) ──── */}
               <section aria-label="Map and directions">
-                {restaurant.latitude !== null && restaurant.longitude !== null ? (
-                  <RestaurantMapSection
-                    restaurantName={restaurant.name}
-                    latitude={restaurant.latitude}
-                    longitude={restaurant.longitude}
-                  />
-                ) : (
-                  <MapUnavailable />
-                )}
+                <RestaurantMapSection
+                  restaurantName={restaurant.name}
+                  address={restaurant.address}
+                  city={restaurant.city}
+                  latitude={restaurant.latitude}
+                  longitude={restaurant.longitude}
+                />
               </section>
 
               {/* ── 4. Dishes ───────────────────────────── */}

@@ -9,6 +9,6 @@ export { PhotoGallery, PhotoGallerySkeleton }                           from './
 export { PhotoLightbox }                                                from './PhotoLightbox'
 export { RestaurantContactSection, RestaurantContactSectionSkeleton }   from './RestaurantContactSection'
 export { RestaurantHero, RestaurantHeroSkeleton }                       from './RestaurantHero'
-export { RestaurantMap, MapUnavailable }                                 from './RestaurantMap'
+export { RestaurantMap, MapUnavailable, MapFromAddress }                 from './RestaurantMap'
 export { TopPicksSection }                                               from './TopPicksSection'
 export { NearYouSection }                                                from './NearYouSection'

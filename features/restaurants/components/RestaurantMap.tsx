@@ -11,7 +11,7 @@
 //
 // Governed by: track-07-navigation-location.md §9
 
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Navigation, MapPin } from 'lucide-react'
 import { getMapStyle, MARKER_COLOR, USER_MARKER_COLOR, DEFAULT_ZOOM } from '@/lib/map-style'
 import { useLocationStore } from 'features/location/stores/location.store'
@@ -137,6 +137,81 @@ export function RestaurantMap({
         Get Directions
       </a>
     </div>
+  )
+}
+
+// Geocodes an address via Nominatim (OpenStreetMap, free, no API key) and
+// renders the same MapLibre map once coordinates are resolved.
+// Falls back to an "Open in Maps" card if Nominatim fails or times out.
+export function MapFromAddress({
+  address,
+  city,
+  restaurantName,
+  className,
+}: {
+  address: string
+  city: string
+  restaurantName: string
+  className?: string
+}) {
+  const [coords, setCoords] = React.useState<{ lat: number; lng: number } | null>(null)
+  const [failed, setFailed] = React.useState(false)
+
+  React.useEffect(() => {
+    const q = encodeURIComponent(`${address}, ${city}, Nigeria`)
+    const controller = new AbortController()
+    fetch(
+      `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&addressdetails=0`,
+      {
+        signal: controller.signal,
+        headers: { 'Accept-Language': 'en' },
+      },
+    )
+      .then((r) => r.json())
+      .then((data: Array<{ lat: string; lon: string }>) => {
+        if (data[0]) {
+          setCoords({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) })
+        } else {
+          setFailed(true)
+        }
+      })
+      .catch(() => setFailed(true))
+    return () => controller.abort()
+  }, [address, city])
+
+  if (failed) {
+    const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(`${address}, ${city}`)}`
+    return (
+      <div className={`rounded-xl overflow-hidden border border-neutral-200 ${className ?? ''}`}>
+        <div className="flex flex-col items-center justify-center gap-3 py-10 bg-neutral-50 text-neutral-500">
+          <MapPin size={28} strokeWidth={1.5} aria-hidden="true" />
+          <p className="text-sm">{address}, {city}</p>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors"
+          >
+            <Navigation size={13} />
+            Open in Maps
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  if (!coords) {
+    return <div className={`w-full h-56 rounded-xl bg-neutral-100 animate-pulse ${className ?? ''}`} aria-busy="true" />
+  }
+
+  return (
+    <RestaurantMap
+      latitude={coords.lat}
+      longitude={coords.lng}
+      restaurantName={restaurantName}
+      address={address}
+      className={className}
+    />
   )
 }
 
