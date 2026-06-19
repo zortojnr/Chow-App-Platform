@@ -12,3 +12,4 @@ export { RestaurantHero, RestaurantHeroSkeleton }                       from './
 export { RestaurantMap, MapUnavailable, MapFromAddress }                 from './RestaurantMap'
 export { TopPicksSection }                                               from './TopPicksSection'
 export { NearYouSection }                                                from './NearYouSection'
+export { BackButton }                                                    from './BackButton'

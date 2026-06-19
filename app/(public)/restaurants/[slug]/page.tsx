@@ -32,6 +32,7 @@ import {
   DishCard,
   PhotoGallery,
   RestaurantContactSection,
+  BackButton,
 } from 'features/restaurants/components'
 import { Badge } from '@/components/ui/badge'
 import { RestaurantMapSection } from './RestaurantMapSection'
@@ -95,7 +96,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// ─── Page ─────────────────────────────────────────────────────
+// ─── Page ─────────
+
 
 export default async function RestaurantProfilePage({ params }: Props) {
   const { slug } = await params
@@ -117,7 +119,7 @@ export default async function RestaurantProfilePage({ params }: Props) {
       addressRegion: restaurant.state,
       addressCountry: 'NG',
     },
-    ...(restaurant.phone ? { telephone: restaurant.phone } : {}),
+    telephone: restaurant.phone,
     ...(restaurant.website ? { url: restaurant.website } : {}),
     servesCuisine:
       restaurant.cuisineTypes.length > 0 ? restaurant.cuisineTypes : ['Nigerian'],
@@ -147,7 +149,8 @@ export default async function RestaurantProfilePage({ params }: Props) {
       <article>
 
         {/* ── Mobile hero — full viewport width, hidden at lg+ ── */}
-        <div className="lg:hidden">
+        <div className="lg:hidden relative">
+          <BackButton variant="overlay" />
           <RestaurantHero
             photos={restaurant.photos}
             name={restaurant.name}
@@ -162,6 +165,11 @@ export default async function RestaurantProfilePage({ params }: Props) {
           lg+   — two-column grid: hero (photo+name) left · details right
         */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          {/* Desktop back link — mobile gets the overlay button on the hero ── */}
+          <div className="hidden lg:block mb-6">
+            <BackButton />
+          </div>
+
           <div className="lg:grid lg:grid-cols-[2fr_3fr] lg:gap-10 lg:items-start">
 
             {/* ── Desktop left column: hero ─────────────── */}
@@ -216,7 +224,7 @@ export default async function RestaurantProfilePage({ params }: Props) {
                 />
               </section>
 
-              {/* ── 4. Dishes ───────────────────────────── */}
+              {/* ── 4. Dishes ───── */}
               <section aria-label="What they serve">
                 <h2 className="font-display text-2xl font-semibold text-neutral-800 mb-5">
                   What they serve
