@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Navigation, MapPin, Utensils } from 'lucide-react'
 import { useLocationStore } from 'features/location/stores/location.store'
 import { useUserLocation } from 'features/location/hooks/useUserLocation'
+import { DistanceBadge } from 'features/location/components/DistanceBadge'
 import type { DishCategory } from '@prisma/client'
 
 // ─── Abuja areas ──────────────────────────────────────────────
@@ -54,6 +55,7 @@ type DishDiscoveryResult = {
   area: string | null
   priceRange: string
   thumbnailUrl: string | null
+  distanceKm: number | null
 }
 
 interface NearYouSectionProps {
@@ -118,9 +120,11 @@ function DishNearCard({ item }: { item: DishDiscoveryResult }) {
           @ {item.restaurantName}
         </p>
 
-        {/* Area + price */}
+        {/* Area/distance + price */}
         <div className="flex items-center justify-between mt-1.5">
-          {item.area ? (
+          {item.distanceKm !== null ? (
+            <DistanceBadge distanceKm={item.distanceKm} />
+          ) : item.area ? (
             <span className="flex items-center gap-1 text-xs text-neutral-400">
               <MapPin size={10} className="shrink-0" aria-hidden="true" />
               {item.area}
@@ -137,7 +141,7 @@ function DishNearCard({ item }: { item: DishDiscoveryResult }) {
 
 // ─── Main component ───────────────────────────────────────────
 export function NearYouSection({ limit = 8 }: NearYouSectionProps) {
-  const { permission } = useLocationStore()
+  const { permission, latitude, longitude } = useLocationStore()
   const { requestLocation } = useUserLocation()
 
   const [dishes,       setDishes]      = useState<DishDiscoveryResult[]>([])
@@ -150,17 +154,20 @@ export function NearYouSection({ limit = 8 }: NearYouSectionProps) {
     if (permission !== 'idle') setRequesting(false)
   }, [permission])
 
-  // When GPS is granted, try nearby restaurants first then fall back to city-wide
+  // When GPS is granted, fetch sorted by real distance from the user
   useEffect(() => {
-    if (permission !== 'granted') return
-    // No geocoded restaurants yet → fall back to city-wide dish discovery
+    if (permission !== 'granted' || latitude === null || longitude === null) return
     fetchByArea(null)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permission])
+  }, [permission, latitude, longitude])
 
   function fetchByArea(area: string | null) {
     const params = new URLSearchParams({ city: 'Abuja', limit: String(limit) })
     if (area) params.set('area', area)
+    if (permission === 'granted' && latitude !== null && longitude !== null) {
+      params.set('lat', String(latitude))
+      params.set('lng', String(longitude))
+    }
     setFetching(true)
     fetch(`/api/v1/dishes/discover?${params}`)
       .then((r) => r.json())
@@ -281,7 +288,7 @@ export function NearYouSection({ limit = 8 }: NearYouSectionProps) {
   // ── Results ────────────────────────────────────────────────
   return (
     <section aria-labelledby="near-you-heading">
-      <div className="flex items-center justify-between mb-4 px-4 md:px-0">
+      <div className="flex items-center justify-between mb-1 px-4 md:px-0">
         <h2 id="near-you-heading" className="font-display text-xl md:text-2xl font-semibold text-neutral-900 flex items-center gap-2">
           <Utensils size={18} className="text-amber-500" aria-hidden="true" />
           Dishes Near You
@@ -293,6 +300,7 @@ export function NearYouSection({ limit = 8 }: NearYouSectionProps) {
           Search all
         </Link>
       </div>
+      <p className="text-xs text-neutral-400 mb-4 px-4 md:px-0">Sorted by distance from you</p>
 
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none px-4 md:px-0 md:grid md:grid-cols-4 md:overflow-visible">
         {dishes.map((d) => <DishNearCard key={d.dishId + d.restaurantId} item={d} />)}

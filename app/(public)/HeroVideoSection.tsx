@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 import { SearchBar } from 'features/search/components/SearchBar'
+import { LocationPrompt } from 'features/location/components/LocationPrompt'
 
 interface HeroVideoSectionProps {
   city?: string
@@ -92,6 +93,14 @@ export function HeroVideoSection({ city }: HeroVideoSectionProps) {
                 Showing results in <span className="font-medium text-neutral-700">{city}</span>
               </p>
             )}
+          </motion.div>
+
+          <motion.div
+            variants={textVariant}
+            transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : 1.05, ease: 'easeOut' }}
+            className="mt-4 rounded-xl overflow-hidden"
+          >
+            <LocationPrompt />
           </motion.div>
         </motion.div>
       </div>

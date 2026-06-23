@@ -28,6 +28,7 @@
 //   - Escape: close dropdown / collapse overlay
 
 import { useRef, useState, useEffect, useCallback, useId } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { Search, X, ArrowLeft, ChevronDown, Clock, Navigation } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -399,8 +400,14 @@ export function SearchBar({
         </button>
       )}
 
-      {/* ── Mobile full-screen overlay ──────────────────────── */}
-      {isMobileExpanded && (
+      {/* ── Mobile full-screen overlay ──────────────────────────
+          Portaled to document.body: this component can render inside
+          ancestors that have a Framer Motion `transform` applied (e.g. the
+          hero intro animation), and any transformed ancestor becomes the
+          containing block for `position: fixed` descendants — which would
+          confine this "full-screen" overlay to the hero section's box
+          instead of the viewport. Portaling escapes that ancestor chain. */}
+      {isMobileExpanded && createPortal(
         <>
           {/* Backdrop */}
           <div
@@ -515,7 +522,8 @@ export function SearchBar({
               )}
             </div>
           </div>
-        </>
+        </>,
+        document.body,
       )}
     </>
   )
