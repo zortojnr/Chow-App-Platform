@@ -70,8 +70,6 @@ function generateSlug(name: string, taken: Set<string>): string {
   return slug
 }
 
-// ─── Main ─────────────────────────────────────────────────────
-
 async function main() {
   const args      = process.argv.slice(2)
   const fileIdx   = args.indexOf('--file')
@@ -85,17 +83,16 @@ async function main() {
   }
 
   const filePath = path.resolve(args[fileIdx + 1])
-  console.log(`\n📂  File : ${filePath}`)
-  if (isDryRun) console.log('🔍  Mode : dry-run — nothing will be written\n')
-  else          console.log('⚡  Mode : LIVE — writing to database\n')
+  console.log(`\n  File : ${filePath}`)
+  if (isDryRun) console.log('  Mode : dry-run — nothing will be written\n')
+  else          console.log('  Mode : LIVE — writing to database\n')
 
   const wb    = XLSX.readFile(filePath)
   const sheet = wb.Sheets['Database'] ?? wb.Sheets[wb.SheetNames[0]]
   const rows  = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' })
 
-  console.log(`📋  Rows : ${rows.length}\n`)
+  console.log(`  Rows : ${rows.length}\n`)
 
-  // Load existing slugs + names to skip true duplicates
   const existing = await db.restaurant.findMany({ select: { slug: true, name: true } })
   const takenSlugs = new Set(existing.map((r) => r.slug))
   const takenNames = new Set(existing.map((r) => r.name.toLowerCase().trim()))
@@ -110,13 +107,13 @@ async function main() {
     const address = cell(row, COL.address)
 
     if (!name || !address) {
-      console.warn(`  ⚠️  Row ${rowNum}: missing name or address — skipped`)
+      console.warn(`  Row ${rowNum}: missing name or address — skipped`)
       skipped++
       continue
     }
 
     if (takenNames.has(name.toLowerCase())) {
-      console.log(`  ⏭  Row ${rowNum}: "${name}" already in database — skipped`)
+      console.log(`  Row ${rowNum}: "${name}" already in database — skipped`)
       skipped++
       continue
     }
@@ -156,7 +153,7 @@ async function main() {
 
     if (isDryRun) {
       console.log(
-        `  ✅  [DRY] "${name}" | area: ${area ?? '—'} | cuisines: ${cuisineTypes.join(', ') || '—'} | slug: ${slug}`,
+        `  [DRY] "${name}" | area: ${area ?? '—'} | cuisines: ${cuisineTypes.join(', ') || '—'} | slug: ${slug}`,
       )
       created++
       takenNames.add(name.toLowerCase())
@@ -165,20 +162,20 @@ async function main() {
 
     try {
       await db.restaurant.create({ data })
-      console.log(`  ✅  Created: "${name}" (${area ?? 'Abuja'})`)
+      console.log(`  Created: "${name}" (${area ?? 'Abuja'})`)
       created++
       takenNames.add(name.toLowerCase())
     } catch (err) {
-      console.error(`  ❌  Row ${rowNum}: "${name}" — ${(err as Error).message}`)
+      console.error(`  Row ${rowNum}: "${name}" — ${(err as Error).message}`)
       errors++
     }
   }
 
   console.log(`
 ─────────────────────────────
-✅  Created : ${created}
-⏭   Skipped : ${skipped}
-❌  Errors  : ${errors}
+Created : ${created}
+Skipped : ${skipped}
+Errors  : ${errors}
 ─────────────────────────────
 `)
 
