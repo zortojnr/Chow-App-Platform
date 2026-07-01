@@ -5,6 +5,7 @@
 // Shows a simple horizontal scroll card row on mobile, grid on desktop.
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { RestaurantListingService } from '../services/restaurant-listing.service'
 import { TrustBadge } from './TrustBadge'
 import { MapPin } from 'lucide-react'
@@ -67,13 +68,14 @@ export async function TopPicksSection({ city, limit = 6 }: TopPicksSectionProps)
             {/* Thumbnail */}
             <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
               {r.thumbnailUrl ? (
-                <img
+                <Image
                   src={r.thumbnailUrl}
                   alt=""
                   aria-hidden="true"
-                  className="w-full h-full object-cover transition-transform duration-[400ms] ease-out group-hover:scale-[1.03]"
+                  fill
+                  sizes="(min-width: 768px) 33vw, 224px"
+                  className="object-cover transition-transform duration-[400ms] ease-out group-hover:scale-[1.03]"
                   loading="lazy"
-                  decoding="async"
                 />
               ) : (
                 <div className={`flex items-center justify-center h-full bg-gradient-to-br ${gradientFor(r.name)}`} aria-hidden="true">

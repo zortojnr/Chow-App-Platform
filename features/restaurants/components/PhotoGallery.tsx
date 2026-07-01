@@ -26,6 +26,7 @@
 //   Count badge is aria-live polite so screen readers announce changes on scroll.
 
 import { useCallback, useRef, useState } from 'react'
+import Image from 'next/image'
 import { Camera } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PhotoLightbox } from './PhotoLightbox'
@@ -122,16 +123,17 @@ export function PhotoGallery({
               )}
               aria-label={`Open photo ${i + 1} of ${photos.length} for ${restaurantName}`}
             >
-              <img
+              <Image
                 src={photo.url}
                 alt={`${restaurantName} — photo ${i + 1}`}
+                fill
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                 className={cn(
-                  'w-full h-full object-cover',
+                  'object-cover',
                   // Subtle zoom on hover — photography direction §App.B
                   'transition-transform duration-[400ms] ease-out group-hover:scale-[1.04]',
                 )}
                 loading="lazy"
-                decoding="async"
               />
 
               {/* Dark overlay flash on hover */}

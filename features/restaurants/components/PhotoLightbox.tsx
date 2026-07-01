@@ -25,6 +25,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -168,10 +169,12 @@ export function PhotoLightbox({
         onClick={onClose}                         // tap outside image → close
         aria-hidden="true"
       >
-        <img
+        <Image
           src={photo.url}
           alt={`${restaurantName} — photo ${currentIndex + 1} of ${photos.length}`}
-          className="max-w-full max-h-full object-contain select-none"
+          fill
+          sizes="100vw"
+          className="object-contain select-none"
           onClick={(e) => e.stopPropagation()}    // tap on image itself → don't close
           draggable={false}
         />

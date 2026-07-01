@@ -21,6 +21,7 @@
 // Accessibility: the whole card is a link; aria-label provides screen-reader context.
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, UtensilsCrossed } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
@@ -96,17 +97,18 @@ export function RestaurantCard({
         )}
       >
         {thumbnailUrl ? (
-          <img
+          <Image
             src={thumbnailUrl}
             alt=""                      // decorative — card aria-label covers context
             aria-hidden="true"
+            fill
+            sizes="(min-width: 768px) 33vw, 100vw"
             className={cn(
-              'w-full h-full object-cover',
+              'object-cover',
               // Subtle zoom on card hover — §App.B photography direction
               'transition-transform duration-[400ms] ease-out group-hover:scale-[1.03]',
             )}
             loading="lazy"
-            decoding="async"
           />
         ) : (
           // Fallback when no verified photo exists

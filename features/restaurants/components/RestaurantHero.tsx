@@ -13,6 +13,7 @@
 // fetchPriority="high" marks this as the LCP image for Core Web Vitals.
 // This is a Server Component — no hooks, no event handlers.
 
+import Image from 'next/image'
 import { Camera } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TrustBadge } from './TrustBadge'
@@ -45,14 +46,14 @@ export function RestaurantHero({
       {primaryPhoto ? (
         <>
           {/* Hero image — LCP element */}
-          <img
+          <Image
             src={primaryPhoto.url}
             alt=""
             aria-hidden="true"
-            fetchPriority="high"
-            loading="eager"
-            decoding="sync"
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover"
           />
 
           {/* Bottom-to-transparent gradient — text legibility §8.1 */}
