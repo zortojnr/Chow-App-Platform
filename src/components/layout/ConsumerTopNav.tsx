@@ -4,18 +4,24 @@
 // Hidden on mobile where ConsumerBottomNav provides navigation.
 //
 // Layout (left → right):
-//   Wordmark · Discover link · Search pill (tap → /search) · [spacer] · Submit CTA
+//   Wordmark · Discover link · Search pill (tap → /search) · [spacer] · Submit CTA · Sign in / Saved
 //
-// Governed by: Phase C launch readiness, design-system-v1.md §9
+// Right-most slot is design-system-v1.md §10.5's "Login / Profile avatar" —
+// Track 5 (User Accounts) implements it as a Sign in link (unauthenticated)
+// or a Saved link (authenticated). No profile page exists yet, so no avatar.
+//
+// Governed by: Phase C launch readiness, design-system-v1.md §9, §10.5
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function ConsumerTopNav() {
   const pathname = usePathname()
   const router   = useRouter()
+  const { status } = useSession()
 
   return (
     <header
@@ -81,6 +87,18 @@ export function ConsumerTopNav() {
         )}
       >
         Submit a restaurant
+      </Link>
+
+      {/* Sign in / Saved — design-system-v1.md §10.5 right-side slot */}
+      <Link
+        href={status === 'authenticated' ? '/dashboard/saved' : '/signin'}
+        className={cn(
+          'shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-fast',
+          'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100',
+          'focus-visible:outline-none focus-visible:shadow-brand',
+        )}
+      >
+        {status === 'authenticated' ? 'Saved' : 'Sign in'}
       </Link>
     </header>
   )

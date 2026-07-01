@@ -6,19 +6,18 @@
 // Design system §9.4: 4 items max, bottom of viewport, safe-area-aware.
 // Track 3 spec §17.3: Discover / Search / Saved / Profile.
 //
-// Routes for Search, Saved, and Profile are Track 4 / Track 5 concerns.
-// They render as inactive items in Track 3. Active state uses amber-500.
+// Saved added in Track 5 (User Accounts) — links to /dashboard/saved.
+// Profile still pending: no profile page exists yet (out of Track 5 scope).
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { House, Search } from 'lucide-react'
+import { House, Search, Bookmark } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// v1 Abuja launch: Discover + Search only.
-// Saved and Profile restore with Track 5 (User Accounts).
 const NAV_ITEMS = [
-  { label: 'Discover', href: '/',       icon: House },
-  { label: 'Search',   href: '/search', icon: Search },
+  { label: 'Discover', href: '/',                icon: House },
+  { label: 'Search',   href: '/search',           icon: Search },
+  { label: 'Saved',    href: '/dashboard/saved',   icon: Bookmark },
 ] as const
 
 // Track 4 §10.4: Search tab activates on /search*, /dishes/*, /category/*

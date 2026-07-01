@@ -1,7 +1,7 @@
 # Chow Here — Track 5: User Accounts and Saved Dishes
 
-**Status:** SPECIFICATION — proposed
-**Version:** 1.0
+**Status:** IMPLEMENTED — 2026-07-01
+**Version:** 1.1
 **Date:** 2026-07-01
 **Governed By:** master-architecture.md · security-standards.md · data-governance.md · chow-here-design-system-v1.md
 **Depends On:** Track 4 (Search and Discovery) — complete
@@ -69,14 +69,9 @@ No schema changes. `User`, `SavedDish`, and `UserSearchHistory` are used as-is (
 | Route | Purpose |
 |---|---|
 | `/signup` | Public account creation |
-| `/login` (public variant) | Public sign-in — **not** the admin page at the same path today |
+| `/signin` | Public sign-in |
 
-**Open decision — requires a call before implementation:** `app/login/page.tsx` currently exists at `/login` and is hardcoded to admin semantics (comment: "Admin login page — /login"; `callbackUrl` validated to `/admin/*` only). Track 5 needs a public sign-in page. Two ways to resolve, both valid, neither decided by any existing doc:
-
-- **(a)** Keep `/login` admin-only as today, add public sign-in at a different path (e.g. `/signin`).
-- **(b)** Generalize `/login` to serve both audiences (validate `callbackUrl` against `/admin/*` OR same-origin public paths, branch copy/redirect by role after auth).
-
-This doc does not pick one — it's a routing/IA decision, not an architecture one, and the existing page's comments make clear its author intended admin-only. Confirm before building.
+**Decision (2026-07-01):** `/login` stays admin-only, unchanged, per its existing comments and tests. Public sign-in lives at a new route, `/signin`, entirely separate from the admin auth flow. This was an open question in v1.0 of this doc — resolved before implementation began.
 
 ### 4.2 Registration
 
@@ -173,9 +168,9 @@ Consumed by the search bar's idle-state dropdown (already built in Track 4 for t
 
 ## 8. EDGE CASES AND OPEN DECISIONS
 
-### 8.1 `/login` route conflict
+### 8.1 `/login` route conflict — RESOLVED 2026-07-01
 
-See §4.1. **This is the one decision this document cannot make unilaterally** — it changes the meaning of an existing, working, tested route (`app/login/page.tsx`, covered by existing tests per admin-platform-track.md). Resolve before Step 1 of implementation.
+See §4.1. `/login` stays admin-only; public sign-in is `/signin`.
 
 ### 8.2 Why `emailVerified` doesn't block login in Phase 1
 
@@ -203,6 +198,17 @@ Schema → Service → API → UI, per master-architecture.md's implementation s
 6. Rewire `features/search/hooks/useSavedDish.ts` to the real API (§5.2) — no changes to `SearchRestaurantCard`.
 7. `/dashboard/saved` page (§6), reusing existing card components.
 8. Search bar idle-state: wire `GET /api/v1/users/search-history` into the existing dropdown UI.
+
+---
+
+## 10. IMPLEMENTATION NOTES (2026-07-01)
+
+All 8 steps above are implemented. Deviations and additions worth recording:
+
+- **`GET /api/v1/users/saved-dishes?idsOnly=true`** returns `{ entries: [{ restaurantDishId, savedDishId }] }`, not bare ids. The Zustand store needs `SavedDish.id` to call DELETE for dishes saved in a *previous* session — an id-only list would have made unsave silently no-op for anything not saved in the current browser tab. See `features/accounts/stores/saved-dishes.store.ts`.
+- **Bottom nav "Saved" tab added** (`ConsumerBottomNav.tsx`) — the design system (§10.5, §15.2) and the pre-existing code comments already called for this; no new visual decision was made. **"Profile" tab intentionally NOT added** — no profile page exists or is in this track's scope; adding the nav item without a destination would be inventing scope.
+- **Top nav right-side slot** (`ConsumerTopNav.tsx`) — design-system-v1.md §10.5 specifies "Login / Profile avatar" here. Implemented as a plain text link: "Sign in" (unauthenticated) → `/signin`, "Saved" (authenticated) → `/dashboard/saved`. No avatar — there is no avatar UI anywhere yet and inventing one wasn't in scope.
+- `/dashboard/saved` reuses the design system's exact empty-state copy (§15.2) but its restaurant card is a new, smaller component inline in the page rather than literally reusing `SearchRestaurantCard` — the saved-dish list response shape doesn't carry `priceRange`, `confidenceScoreBand`, or `dishesServed`, so the full card couldn't be reused without adding fields the API contract (§5, Track 4 §7.4) never specified.
 
 ---
 

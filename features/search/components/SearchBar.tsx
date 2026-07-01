@@ -30,6 +30,7 @@
 import { useRef, useState, useEffect, useCallback, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Search, X, ArrowLeft, ChevronDown, Clock, Navigation } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSearchSuggestions } from '../hooks/useSearchSuggestions'
@@ -37,6 +38,7 @@ import { useSearchStore } from '../stores/search.store'
 import { Badge } from '@/components/ui/badge'
 import { useLocationStore } from 'features/location/stores/location.store'
 import { useUserLocation } from 'features/location/hooks/useUserLocation'
+import { useSearchHistory } from 'features/accounts/hooks/useSearchHistory'
 
 // v1: Abuja only. Expand when multi-city launches.
 const NIGERIAN_CITIES = ['Abuja']
@@ -82,13 +84,19 @@ export function SearchBar({
 
   const { cityContext, setCityContext, anonRecentSearches, addAnonRecentSearch } = useSearchStore()
   const { data: suggestions = [] } = useSearchSuggestions(inputValue)
+  const { status: sessionStatus } = useSession()
+  const { data: serverHistory = [] } = useSearchHistory()
 
   const { permission } = useLocationStore()
   const { requestLocation } = useUserLocation()
 
+  // Authenticated users see their server-side search history (Track 5 §7);
+  // anonymous users see the locally-persisted recent-search store.
+  const recentSearches = sessionStatus === 'authenticated' ? serverHistory : anonRecentSearches
+
   // Show idle recent searches when empty, suggestions when typing
   const showSuggestions = isOpen && inputValue.trim().length >= 2 && suggestions.length > 0
-  const showRecentSearches = isOpen && inputValue.trim().length < 2 && anonRecentSearches.length > 0
+  const showRecentSearches = isOpen && inputValue.trim().length < 2 && recentSearches.length > 0
   const dropdownVisible = showSuggestions || showRecentSearches
 
   // Reset highlight when suggestions change
@@ -201,7 +209,7 @@ export function SearchBar({
       aria-label="Search suggestions"
       className="py-1"
     >
-      {showRecentSearches && anonRecentSearches.map((item, i) => (
+      {showRecentSearches && recentSearches.map((item, i) => (
         <li
           key={i}
           id={`${listId}-${i}`}
@@ -500,9 +508,9 @@ export function SearchBar({
                   <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-3">
                     Popular dishes
                   </p>
-                  {anonRecentSearches.length > 0 ? (
+                  {recentSearches.length > 0 ? (
                     <ul className="space-y-1">
-                      {anonRecentSearches.map((item, i) => (
+                      {recentSearches.map((item, i) => (
                         <li key={i}>
                           <button
                             type="button"
