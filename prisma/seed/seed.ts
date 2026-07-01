@@ -4,6 +4,8 @@
 // Usage: npm run db:seed
 // Governed by: database-track.md §6
 
+import crypto from "node:crypto";
+import bcrypt from "bcryptjs";
 import {
   PrismaClient,
   UserRole,
@@ -12,6 +14,9 @@ import {
 } from "@prisma/client";
 import { DISHES } from "./dishes.data";
 import { RESTAURANTS, RestaurantSeedEntry } from "./restaurants.data";
+
+// security-standards.md §2.1 — cost 12 is the required minimum
+const BCRYPT_COST = 12;
 
 const prisma = new PrismaClient({
   log: ["error", "warn"],
@@ -47,28 +52,42 @@ async function seedDishTaxonomy(systemUserId: string): Promise<void> {
 }
 
 async function seedSuperAdmin(): Promise<string> {
-  // bcrypt hash of "changeme_before_production" — MUST be rotated before first admin login.
-  // Generated with: bcryptjs.hashSync("changeme_before_production", 12)
-  const PLACEHOLDER_HASH =
-    "$2a$12$placeholderHashThatMustBeReplacedBeforeFirstLogin000000";
-
   const email = process.env.SEED_ADMIN_EMAIL ?? "admin@chowhere.dev";
 
+  // SEED_ADMIN_PASSWORD lets CI/deploy scripts set a known password.
+  // If unset, generate a random one and print it once — never fall back to a
+  // fixed placeholder hash (a placeholder hash is not a valid bcrypt hash for
+  // any password, silently locking out the first admin login).
+  const generatedPassword = process.env.SEED_ADMIN_PASSWORD ?? crypto.randomBytes(12).toString("base64url");
+  const passwordHash = await bcrypt.hash(generatedPassword, BCRYPT_COST);
+
   console.log(`Seeding super admin: ${email}`);
+
+  const existing = await prisma.user.findUnique({ where: { email } });
 
   const admin = await prisma.user.upsert({
     where: { email },
     update: {}, // never overwrite existing admin credentials
     create: {
       email,
-      passwordHash: PLACEHOLDER_HASH,
+      passwordHash,
       role: UserRole.SUPER,
       displayName: "Super Admin",
       emailVerified: true,
     },
   });
 
-  console.log(`  ✓ Super admin ready (id: ${admin.id})`);
+  if (!existing) {
+    if (process.env.SEED_ADMIN_PASSWORD) {
+      console.log(`  ✓ Super admin created (id: ${admin.id}) — password set from SEED_ADMIN_PASSWORD`);
+    } else {
+      console.log(`  ✓ Super admin created (id: ${admin.id})`);
+      console.log(`  ⚠ Generated password (shown once): ${generatedPassword}`);
+    }
+  } else {
+    console.log(`  ✓ Super admin already exists (id: ${admin.id}) — credentials unchanged`);
+  }
+
   return admin.id;
 }
 
