@@ -17,6 +17,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrandWordmark } from '@/components/BrandWordmark'
 
 export function ConsumerTopNav() {
   const pathname = usePathname()
@@ -34,9 +35,9 @@ export function ConsumerTopNav() {
       {/* Wordmark */}
       <Link
         href="/"
-        className="font-display text-xl font-bold text-amber-500 shrink-0 leading-none focus-visible:outline-none focus-visible:shadow-brand rounded-sm"
+        className="shrink-0 rounded-sm focus-visible:outline-none focus-visible:shadow-brand"
       >
-        Chow Here
+        <BrandWordmark className="font-display text-xl font-bold" showMark />
       </Link>
 
       {/* Primary nav link */}

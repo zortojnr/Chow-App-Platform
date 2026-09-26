@@ -23,6 +23,7 @@ import { z } from 'zod'
 import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { BrandWordmark } from '@/components/BrandWordmark'
 
 const SignInSchema = z.object({
   email:    z.string().email('Please enter a valid email address'),
@@ -80,9 +81,7 @@ function SignInForm() {
       <div className="w-full max-w-sm">
 
         <div className="mb-8 text-center">
-          <span className="font-display text-xl font-semibold text-amber-500">
-            Chow Here
-          </span>
+          <BrandWordmark className="font-display text-xl font-semibold" showMark />
         </div>
 
         <div className="bg-neutral-0 border border-neutral-200 rounded-lg p-8">

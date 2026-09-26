@@ -21,6 +21,7 @@ import { z } from 'zod'
 import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { BrandWordmark } from '@/components/BrandWordmark'
 
 const SignUpSchema = z.object({
   displayName: z.string().trim().min(1, 'Please enter your name').max(100),
@@ -95,9 +96,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-sm">
 
         <div className="mb-8 text-center">
-          <span className="font-display text-xl font-semibold text-amber-500">
-            Chow Here
-          </span>
+          <BrandWordmark className="font-display text-xl font-semibold" showMark />
         </div>
 
         <div className="bg-neutral-0 border border-neutral-200 rounded-lg p-8">

@@ -36,6 +36,7 @@ import {
 } from 'features/restaurants/components'
 import { Badge } from '@/components/ui/badge'
 import { RestaurantMapSection } from './RestaurantMapSection'
+import { ArrowUpRight, Clock3, MapPin, PhoneCall, ShieldCheck, Utensils } from 'lucide-react'
 
 export const revalidate = 300
 
@@ -50,12 +51,11 @@ const PRICE_DISPLAY: Record<string, string> = {
   MID:     '₦₦',
   UPSCALE: '₦₦₦',
 }
-const PRICE_VARIANT = {
-  BUDGET:  'price-budget',
-  MID:     'price-mid',
-  UPSCALE: 'price-upscale',
-} as const satisfies Record<string, 'price-budget' | 'price-mid' | 'price-upscale'>
-
+const PRICE_LABEL: Record<string, string> = {
+  BUDGET: 'Budget friendly',
+  MID: 'Mid-range',
+  UPSCALE: 'Upscale',
+}
 // ─── Metadata ─────────────────────────────────────────────────
 
 interface Props {
@@ -105,9 +105,6 @@ export default async function RestaurantProfilePage({ params }: Props) {
 
   if (!restaurant) notFound()
 
-  const hasDescription =
-    restaurant.description !== null && restaurant.description.length >= 10
-
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -126,172 +123,200 @@ export default async function RestaurantProfilePage({ params }: Props) {
     ...(restaurant.photos[0] ? { image: restaurant.photos[0].url } : {}),
   }
 
-  // §8.2: primary photo is hero-only; gallery receives non-primary verified photos
   const galleryPhotos = restaurant.photos.filter((p) => !p.isPrimary)
+  const approvedDate = new Intl.DateTimeFormat('en-NG', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(restaurant.approvedAt))
 
   const contactProps = {
-    phone:   restaurant.phone,
+    phone: restaurant.phone,
     address: restaurant.address,
-    area:    restaurant.area,
-    city:    restaurant.city,
-    state:   restaurant.state,
+    area: restaurant.area,
+    city: restaurant.city,
+    state: restaurant.state,
     website: restaurant.website,
-    email:   restaurant.email,
+    email: restaurant.email,
   }
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      <article>
-
-        {/* ── Mobile hero — full viewport width, hidden at lg+ ── */}
-        <div className="lg:hidden relative">
-          <BackButton variant="overlay" />
-          <RestaurantHero
-            photos={restaurant.photos}
-            name={restaurant.name}
-            confidenceScoreBand={restaurant.confidenceScoreBand}
-          />
-        </div>
-
-        {/* ── Content area ──────────────────────────────────── */}
-        {/*
-          §17.2 sidebar layout:
-          < lg  — single column, detail sections stacked below mobile hero
-          lg+   — two-column grid: hero (photo+name) left · details right
-        */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          {/* Desktop back link — mobile gets the overlay button on the hero ── */}
-          <div className="hidden lg:block mb-6">
-            <BackButton />
+      <article className="min-h-screen bg-neutral-50">
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mb-5 flex items-center justify-between">
+            <BackButton label="All restaurants" />
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">
+              Restaurant profile
+            </span>
           </div>
 
-          <div className="lg:grid lg:grid-cols-[2fr_3fr] lg:gap-10 lg:items-start">
+          <div className="overflow-hidden rounded-xl bg-neutral-100">
+            <RestaurantHero
+              photos={restaurant.photos}
+              name={restaurant.name}
+              confidenceScoreBand={restaurant.confidenceScoreBand}
+              showOverlay={false}
+              className="aspect-[1.25] sm:aspect-[1.7] lg:aspect-[2.15]"
+            />
+          </div>
 
-            {/* ── Desktop left column: hero ─────────────── */}
-            <aside className="hidden lg:block lg:sticky lg:top-8" aria-label="Restaurant photo">
-              <RestaurantHero
-                photos={restaurant.photos}
-                name={restaurant.name}
-                confidenceScoreBand={restaurant.confidenceScoreBand}
-              />
-            </aside>
-
-            {/* ── Detail sections (right on desktop, full-width on mobile) */}
-            <div className="space-y-10 mt-8 lg:mt-0">
-
-              {/* ── 2. Identity ─────────────────────────── */}
-              <section aria-label="Restaurant identity">
-                {/* Semantic h1 — hero overlay is decorative (aria-hidden) §13.2 */}
-                <h1 className="font-display font-bold text-neutral-900 leading-tight mb-3 text-2xl md:text-3xl lg:text-4xl">
-                  {restaurant.name}
-                </h1>
-
-                <TrustBadge
-                  scoreBand={restaurant.confidenceScoreBand}
-                  showBand
-                  className="mb-4"
-                />
-
-                <div className="flex flex-wrap items-center gap-2">
-                  {restaurant.cuisineTypes.map((cuisine) => (
-                    <Badge key={cuisine} variant="category">{cuisine}</Badge>
-                  ))}
-                  <Badge
-                    variant={PRICE_VARIANT[restaurant.priceRange]}
-                    aria-label={`Price range: ${restaurant.priceRange.toLowerCase()}`}
-                  >
-                    {PRICE_DISPLAY[restaurant.priceRange]}
-                  </Badge>
+          <section className="border-b border-neutral-200 py-7 sm:py-9" aria-label="Restaurant identity">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <div className="mb-2 flex flex-wrap items-center gap-3">
+                  <h1 className="font-display text-3xl font-bold leading-tight text-neutral-900 sm:text-4xl">
+                    {restaurant.name}
+                  </h1>
+                  <TrustBadge scoreBand={restaurant.confidenceScoreBand} showBand />
                 </div>
-              </section>
+                <p className="flex items-center gap-1.5 text-sm text-neutral-600">
+                  <MapPin size={15} className="shrink-0 text-green-600" aria-hidden="true" />
+                  {restaurant.area ? `${restaurant.area}, ` : ''}{restaurant.city}, {restaurant.state}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2">
+                <span className="font-semibold text-amber-700">{PRICE_DISPLAY[restaurant.priceRange]}</span>
+                <span className="text-sm text-neutral-600">{PRICE_LABEL[restaurant.priceRange]}</span>
+              </div>
+            </div>
 
-              {/* ── 3. Location ─────────────────────────── */}
-              <RestaurantContactSection {...contactProps} show="location" />
+            <div className="mt-5 flex flex-wrap gap-2">
+              {restaurant.cuisineTypes.map((cuisine) => (
+                <Badge key={cuisine} variant="category">{cuisine}</Badge>
+              ))}
+            </div>
+          </section>
 
-              {/* ── 3b. Map + Live Tracking (Track 7) ──── */}
-              <section aria-label="Map and directions">
-                <RestaurantMapSection
-                  restaurantName={restaurant.name}
-                  address={restaurant.address}
-                  city={restaurant.city}
-                  latitude={restaurant.latitude}
-                  longitude={restaurant.longitude}
-                />
-              </section>
-
-              {/* ── 4. Dishes ───── */}
-              <section aria-label="What they serve">
-                <h2 className="font-display text-2xl font-semibold text-neutral-800 mb-5">
-                  What they serve
+          <div className="grid gap-10 py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12 lg:py-10">
+            <main className="min-w-0 space-y-10">
+              <section aria-labelledby="about-heading">
+                <h2 id="about-heading" className="font-display text-2xl font-semibold text-neutral-900">
+                  About
                 </h2>
+                <p className="mt-3 max-w-3xl text-base leading-7 text-neutral-700">
+                  {restaurant.description?.trim() ||
+                    'An overview has not been provided for this restaurant yet. The verified listing details, cuisine, location, and contact information are shown here so you can plan a visit and confirm current service directly.'}
+                </p>
+              </section>
+
+              <section aria-labelledby="menu-heading">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">Menu</p>
+                    <h2 id="menu-heading" className="font-display text-2xl font-semibold text-neutral-900">
+                      What they serve
+                    </h2>
+                  </div>
+                  {restaurant.dishes.length > 0 && (
+                    <span className="text-sm text-neutral-500">{restaurant.dishes.length} listed</span>
+                  )}
+                </div>
 
                 {restaurant.dishes.length > 0 ? (
-                  <>
-                    {/* Horizontal chip scroll — §17.7 amber-50/amber-700 pill style */}
-                    <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
-                      {restaurant.dishes.map((dish) => (
-                        <span
-                          key={dish.id}
-                          className="shrink-0 inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700"
-                        >
-                          {dish.canonicalName}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* DishCard grid — 1 col mobile, 2 tablet, 3 desktop §17.7 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {restaurant.dishes.map((dish) => (
-                        <DishCard key={dish.id} dish={dish} />
-                      ))}
-                    </div>
-                  </>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {restaurant.dishes.map((dish) => (
+                      <DishCard key={dish.id} dish={dish} />
+                    ))}
+                  </div>
                 ) : (
-                  /* Empty state — §15.2 */
-                  <div
-                    className="flex flex-col items-center justify-center py-12 text-center rounded-xl border border-neutral-100"
-                    role="status"
-                    aria-label="No dishes listed"
-                  >
-                    <p className="font-display text-xl font-semibold text-neutral-700 mb-1">
-                      No dishes listed yet
-                    </p>
-                    <p className="text-base text-neutral-500">
-                      This restaurant hasn't had its dishes catalogued yet.
-                    </p>
+                  <div className="mt-5 border-y border-neutral-200 py-5">
+                    <div className="flex items-start gap-3">
+                      <Utensils size={18} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
+                      <div>
+                        <h3 className="font-semibold text-neutral-800">Menu details are not listed yet</h3>
+                        <p className="mt-1 text-sm leading-6 text-neutral-600">
+                          Dish information has not been added to this profile. Call the restaurant to ask about today’s menu and availability.
+                        </p>
+                        {restaurant.phone && (
+                          <a
+                            href={`tel:${restaurant.phone.replace(/\s/g, '')}`}
+                            className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-green-700 hover:text-green-800"
+                          >
+                            <PhoneCall size={15} aria-hidden="true" />
+                            Call to ask about the menu
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </section>
 
-              {/* ── 5. Contact ──────────────────────────── */}
-              <RestaurantContactSection {...contactProps} show="contact" />
-
-              {/* ── 6. Photo Gallery ────────────────────── */}
-              {/* §8.2: galleryPhotos excludes primary (hero-only) */}
-              <section aria-label="Photos">
-                <h2 className="text-xl font-semibold text-neutral-800 mb-4">Photos</h2>
-                <PhotoGallery
-                  photos={galleryPhotos}
-                  restaurantName={restaurant.name}
-                />
-              </section>
-
-              {/* ── 7. About — omitted if null or < 10 chars §16.5 */}
-              {hasDescription && (
-                <section aria-label="About">
-                  <h2 className="text-xl font-semibold text-neutral-800 mb-3">About</h2>
-                  <p className="text-md text-neutral-700 max-w-prose leading-relaxed">
-                    {restaurant.description}
-                  </p>
+              {galleryPhotos.length > 0 && (
+                <section aria-labelledby="photos-heading">
+                  <h2 id="photos-heading" className="font-display text-2xl font-semibold text-neutral-900">
+                    Photos
+                  </h2>
+                  <PhotoGallery
+                    photos={galleryPhotos}
+                    restaurantName={restaurant.name}
+                    className="mt-5"
+                  />
                 </section>
               )}
 
-            </div>
+              {restaurant.latitude !== null && restaurant.longitude !== null && (
+                <section aria-labelledby="map-heading">
+                  <h2 id="map-heading" className="mb-4 font-display text-2xl font-semibold text-neutral-900">
+                    Find us
+                  </h2>
+                  <RestaurantMapSection
+                    restaurantName={restaurant.name}
+                    address={restaurant.address}
+                    city={restaurant.city}
+                    latitude={restaurant.latitude}
+                    longitude={restaurant.longitude}
+                  />
+                </section>
+              )}
+            </main>
+
+            <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start" aria-label="Visit information">
+              <section className="rounded-xl border border-neutral-200 bg-white p-5 sm:p-6">
+                <h2 className="font-display text-xl font-semibold text-neutral-900">Plan your visit</h2>
+                <RestaurantContactSection {...contactProps} className="mt-5 space-y-5" />
+
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${restaurant.address}, ${restaurant.city}, ${restaurant.state}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
+                >
+                  Get directions
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+
+                <div className="mt-6 border-t border-neutral-200 pt-5">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">
+                    Listing details
+                  </h3>
+                  <dl className="mt-4 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <ShieldCheck size={17} className="mt-0.5 shrink-0 text-green-700" aria-hidden="true" />
+                      <div>
+                        <dt className="text-sm font-medium text-neutral-800">Verified listing</dt>
+                        <dd className="mt-0.5 text-sm text-neutral-500">Approved {approvedDate}</dd>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <MapPin size={17} className="mt-0.5 shrink-0 text-neutral-500" aria-hidden="true" />
+                      <div>
+                        <dt className="text-sm font-medium text-neutral-800">Neighborhood</dt>
+                        <dd className="mt-0.5 text-sm text-neutral-500">{restaurant.area || 'Not specified'}</dd>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Clock3 size={17} className="mt-0.5 shrink-0 text-neutral-500" aria-hidden="true" />
+                      <div>
+                        <dt className="text-sm font-medium text-neutral-800">Opening hours</dt>
+                        <dd className="mt-0.5 text-sm text-neutral-500">Contact the restaurant for current hours</dd>
+                      </div>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+            </aside>
           </div>
         </div>
       </article>

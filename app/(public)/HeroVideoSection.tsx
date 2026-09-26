@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 import { SearchBar } from 'features/search/components/SearchBar'
 import { LocationPrompt } from 'features/location/components/LocationPrompt'
+import { BrandWordmark } from '@/components/BrandWordmark'
 
 interface HeroVideoSectionProps {
   city?: string
@@ -64,8 +65,8 @@ export function HeroVideoSection({ city }: HeroVideoSectionProps) {
                 priority
               />
             </div>
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-amber-500 mb-2">
-              Chow Here
+            <h1 className="mb-2">
+              <BrandWordmark className="font-display text-4xl md:text-5xl font-bold" />
             </h1>
             <p className="font-display text-base md:text-lg text-neutral-600">
               Find verified Nigerian restaurants, dish by dish.

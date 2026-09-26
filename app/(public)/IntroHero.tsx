@@ -97,6 +97,7 @@ export default function IntroHero({ city }: IntroHeroProps) {
                 duration={TYPEWRITER_DURATION}
                 delay={TYPEWRITER_START}
                 as="h2"
+                brandColors
                 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-white drop-shadow-lg"
               />
             </div>

@@ -9,6 +9,7 @@ interface TypewriterTextProps {
   delay?: number // delay before starting
   className?: string
   as?: 'h1' | 'h2' | 'h3' | 'p' | 'span'
+  brandColors?: boolean
 }
 
 export function TypewriterText({
@@ -17,6 +18,7 @@ export function TypewriterText({
   delay = 0,
   className = '',
   as: Component = 'h2',
+  brandColors = false,
 }: TypewriterTextProps) {
   const [displayedText, setDisplayedText] = useState('')
   const [isComplete, setIsComplete] = useState(false)
@@ -62,7 +64,25 @@ export function TypewriterText({
       transition={{ duration: 0.3, delay }}
     >
       {Component === 'h1' && <h1 className={className}>{displayedText}</h1>}
-      {Component === 'h2' && <h2 className={className}>{displayedText}</h2>}
+      {Component === 'h2' && (
+        <h2 className={className}>
+          {brandColors ? (
+            <>
+              {displayedText.slice(0, Math.max(0, displayedText.indexOf('Chow')))}
+              {displayedText.includes('Chow') && (
+                <>
+                  <span className="text-amber-500">
+                    {displayedText.slice(displayedText.indexOf('Chow'), displayedText.indexOf('Chow') + 4)}
+                  </span>
+                  <span className="text-green-400">
+                    {displayedText.slice(displayedText.indexOf('Chow') + 4)}
+                  </span>
+                </>
+              )}
+            </>
+          ) : displayedText}
+        </h2>
+      )}
       {Component === 'h3' && <h3 className={className}>{displayedText}</h3>}
       {Component === 'p' && <p className={className}>{displayedText}</p>}
       {Component === 'span' && <span className={className}>{displayedText}</span>}

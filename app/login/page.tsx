@@ -22,6 +22,7 @@ import { z } from 'zod'
 import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { BrandWordmark } from '@/components/BrandWordmark'
 
 // ─── Schema ──────────────────────────────────────────────────
 
@@ -85,9 +86,7 @@ function LoginForm() {
 
         {/* Wordmark — §10.5 Consumer Top Nav spec (wordmark: Fraunces text-xl amber-500) */}
         <div className="mb-8 text-center">
-          <span className="font-display text-xl font-semibold text-amber-500">
-            Chow Here
-          </span>
+          <BrandWordmark className="font-display text-xl font-semibold" showMark />
           <p className="mt-1 text-xs text-neutral-500 uppercase tracking-wider">
             Admin Portal
           </p>

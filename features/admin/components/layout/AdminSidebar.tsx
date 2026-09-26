@@ -27,6 +27,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrandWordmark } from '@/components/BrandWordmark'
 import { markWelcomeIntroLogout } from '@/lib/welcome-intro'
 import { DarkModeToggle } from './DarkModeToggle'
 import { QueueBadge } from './QueueBadge'
@@ -138,9 +139,9 @@ export function AdminSidebar({ session }: AdminSidebarProps) {
       <div className="flex h-16 items-center px-4 border-b border-neutral-800">
         <Link
           href="/admin/queue"
-          className="font-display text-xl font-semibold text-amber-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 rounded"
+          className="rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500"
         >
-          Chow Here
+          <BrandWordmark className="font-display text-xl font-semibold" showMark onDark />
         </Link>
         <span className="ml-2 text-xs font-medium text-neutral-500 uppercase tracking-wider">
           Admin

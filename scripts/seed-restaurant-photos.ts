@@ -58,7 +58,7 @@ const CUISINE_PHOTO_RULES: { keywords: string[]; urls: string[] }[] = [
   {
     keywords: ['shawarma', 'kebab', 'wrap', 'lebanese', 'middle eastern', 'turkish', 'arabic'],
     urls: [
-      '1544025162-d76538840979', '1662116765994-1e4200c43589', '1719282431565-3b30bb7d2658',
+      '1662116765994-1e4200c43589', '1719282431565-3b30bb7d2658', '1530469912745-a215c6b256ea',
       '1530469912745-a215c6b256ea', '1699728088614-7d1d4277414b', '1676300187013-7540d4e9440d',
       '1583060095186-852adde6b819',
     ].map(u),
@@ -66,7 +66,7 @@ const CUISINE_PHOTO_RULES: { keywords: string[]; urls: string[] }[] = [
   {
     keywords: ['mediterranean', 'greek', 'moroccan'],
     urls: [
-      '1544025162-d76538840979', '1662116765994-1e4200c43589', '1719282431565-3b30bb7d2658',
+      '1414235077428-338989a2e8c0', '1662116765994-1e4200c43589', '1719282431565-3b30bb7d2658',
       '1530469912745-a215c6b256ea',
     ].map(u),
   },
@@ -166,7 +166,11 @@ function hashIndex(id: string, poolSize: number): number {
   return hash % poolSize
 }
 
-function pickPhoto(id: string, cuisineTypes: string[]): string {
+function pickPhoto(id: string, name: string, cuisineTypes: string[]): string {
+  const normalizedName = normalize(name)
+  if (normalizedName === 'santorini abuja') return u('1414235077428-338989a2e8c0')
+  if (normalizedName === 'the clubhouse') return u('1566417713940-fe7c737a9ef2')
+
   const joined = normalize(cuisineTypes.join(' '))
   const pool = CUISINE_PHOTO_RULES.find((rule) =>
     rule.keywords.some((kw) => joined.includes(normalize(kw))),
@@ -192,7 +196,7 @@ async function main() {
   let updated = 0
 
   for (const r of restaurants) {
-    const url = pickPhoto(r.id, r.cuisineTypes)
+    const url = pickPhoto(r.id, r.name, r.cuisineTypes)
     const cuisineLabel = r.cuisineTypes.join(', ') || '—'
     console.log(`  ${isDryRun ? '[DRY] ' : ''}${r.name} (${cuisineLabel}) → ${url.slice(BASE.length + 7, BASE.length + 17)}…`)
 
